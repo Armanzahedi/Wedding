@@ -1,0 +1,65 @@
+﻿@{
+    ViewBag.Title = "جزئیات مشتری";
+}
+<input type="hidden" id="nav_active" value="customers">
+<input type="hidden" id="nav_item_active" value="customers">
+<div class="page-header">
+    <div>
+        <h3>@ViewData["Title"]</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-area="apanel" asp-controller="Home" asp-action="Index">داشبورد</a></li>
+                <li class="breadcrumb-item"><a asp-area="apanel" asp-controller="Customers" asp-action="Index">مشتریان</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><a href="javascript:void(0)">@ViewData["Title"]</a></li>
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <partial name="_SpinnerPartial" />
+                <div id="customer-details"></div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts {
+    <script>
+    $(document).ready(function () {
+        $.ajax({
+            url: "@Url.Action("CustomerDetails","Customers", new { Id = ViewBag.CustomerId })",
+            success: function (result) {
+                $("#spinner").hide();
+                $("#customer-details").html(result);
+            }
+        });
+    });
+        function btnEditCustomer() {
+            $("#customer-details").hide();
+            $("#spinner").show();
+            $.ajax({
+            url: "@Url.Action("CustomerEdit","Customers", new { Id = ViewBag.CustomerId })",
+                success: function (result) {
+                $("#spinner").hide();
+                $("#customer-details").show();
+                $("#customer-details").html(result);
+            }
+        });
+        }
+        function btnCancel() {
+            $("#customer-details").hide();
+            $("#spinner").show();
+            $.ajax({
+            url: "@Url.Action("CustomerDetails","Customers", new { Id = ViewBag.CustomerId })",
+                success: function (result) {
+                $("#spinner").hide();
+                $("#customer-details").show();
+                $("#customer-details").html(result);
+            }
+        });
+        }
+
+    </script>
+} 

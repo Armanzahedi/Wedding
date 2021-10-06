@@ -1,0 +1,56 @@
+﻿@model Wedding.Core.Models.GeoDivision
+
+<input type="hidden" id="title" value="ویرایش منطقه" />
+
+<form asp-action="Edit" method="post" id="form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="InsertDate" type="hidden" />
+    <input asp-for="InsertUser" type="hidden" />
+    <input asp-for="IsDeleted" type="hidden" />
+
+    <div class="form-group">
+        <label asp-for="Title" class="control-label col-md-12"></label>
+        <div class="col-md-12">
+            <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="LatinTitle" class="control-label col-md-12"></label>
+        <div class="col-md-12">
+            <input asp-for="LatinTitle" class="form-control" />
+            <span asp-validation-for="LatinTitle" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="ParentId" class="control-label">زیر مجموعه ی</label>
+        <div class="col-md-12">
+            <select asp-for="ParentId" asp-items="@ViewData["GeoDivisions"] as List<SelectListItem>" class="form-control">
+                <option>زیر مجموعه ندارد</option>
+            </select>
+            <span asp-validation-for="ParentId" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="GeoDivisionType" class="control-label"></label>
+        <div class="col-md-12">
+            <select asp-for="GeoDivisionType" class="form-control">
+                <option value="0">کشور</option>
+                <option value="1">استان</option>
+                <option value="2">شهر</option>
+                <option value="3">منطقه</option>
+            </select>
+            <span asp-validation-for="GeoDivisionType" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div style="float:left">
+            <input type="submit" value="ثبت" class="btn btn-primary mr-2" />
+        </div>
+    </div>
+</form>
+<script>
+    $.validator.unobtrusive.parse("#form");
+</script>

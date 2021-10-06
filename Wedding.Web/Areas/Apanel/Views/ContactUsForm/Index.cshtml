@@ -1,0 +1,105 @@
+﻿@{
+    ViewData["Title"] = "فرم تماس با ما";
+}
+<input type="hidden" id="nav_active" value="contact_us_form">
+<input type="hidden" id="nav_item_active" value="contact_us_form">
+
+<div class="page-header">
+    <div>
+        <h3>@ViewData["Title"]</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-area="apanel" asp-controller="Home" asp-action="Index">داشبورد</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><a href="javascript:void(0)">@ViewData["Title"]</a></li>
+            </ol>
+        </nav>
+    </div>
+    <validate-permission asp-controller="ContactUsForm" asp-action="Create">
+        <a asp-area="apanel" asp-controller="ContactUsForm" asp-action="Create" class="btn btn-success text-white font-weight-bolder">
+            رکورد جدید
+        </a>
+    </validate-permission>
+</div>
+<div class="card">
+    <div class="card-body table-responsive">
+        <table id="datatable" class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>نام</th>
+                    <th>ایمیل یا شماره تلفن</th>
+                    <th>موضوع</th>
+                    <th>وضعیت</th>
+                    <th>دستورات</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        $(function () {
+            @if (ViewBag.Root != null && ViewBag.Root != false)
+            {
+                <text>
+                    localStorage.removeItem('DataTables_datatable_' + window.location.pathname);
+                </text>
+            }
+            var table = $('#datatable').DataTable({
+                ajax: {
+                    url: '/apanel/ContactUsForm/LoadGrid',
+                    type: "POST",
+                },
+                stateSave: true,
+                order: [0,"desc"], // descending order with first column witch is hidden id
+                columnDefs: [
+                    {
+                        "targets": [0],
+                        "visible": false,
+                        "searchable": false
+                    }
+                ],
+                columns: [
+                    { data: "Id" },
+                    { data: "Name" },
+                    { data: "Email" },
+                    { data: "Subject" },
+                    {
+                        data: "IsSeen",
+                        render: function (data, type, row) {
+                            var content = "";
+                            if (row.IsSeen === true) {
+                                content = "<span class='label label-lg label-success label-inline mr-2'>مشاهده شده</span>";
+                            }
+                            else {
+                                content = "<span class='label label-lg label-danger label-inline mr-2'>مشاهده نشده</span>";
+                            }
+                            return content;
+                        }
+                    },
+                    {
+                        data: "Id",
+                        responsivePriority: -1,
+                        render: function (data, type, row) {
+                            var content = "";
+                            @{
+                                if (await PermissionHelper.UserHasPermission("ContactUsForm", "Details"))
+                                {
+                                    <text>
+                            var element = `<a class='btn btn-light btn-sm ml-2' onclick="openModal('/apanel/ContactUsForm/Details/${row.Id}')">مشاهده</a>`;
+                                        content += element;
+
+                                    </text>
+                                }
+                             }
+                            return content;
+                        },
+                        width:"200px",
+                        orderable: false
+                    },
+
+                ],
+            });
+        });
+    </script>
+}

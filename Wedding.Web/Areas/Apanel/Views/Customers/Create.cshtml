@@ -1,0 +1,81 @@
+﻿@model CreateCustomerViewModel 
+<input type="hidden" id="title" value="ایجاد مشتری" />
+<form asp-action="Create" method="post" id="form">
+    <div class="form-group">
+        <label asp-for="JobTitle" class="control-label col-md-12">نام مجموعه *</label>
+        <div class="col-md-12">
+            <input asp-for="JobTitle" class="form-control" />
+            <span asp-validation-for="JobTitle" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="PhoneNumber" class="control-label col-md-12">شماره همراه *</label>
+        <div class="col-md-12">
+            <input asp-for="PhoneNumber" class="form-control" placeholder="09xx-xxx-xxxx" />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            <span id="validate-phone" class="text-danger" style="display:none"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="JobTypeId" class="control-label"></label>
+        <div class="col-md-12">
+            <select asp-for="JobTypeId" asp-items="@ViewData["JobTypes"] as List<SelectListItem>" class="form-control select2">
+                <option value="0">انتخاب نشده</option>
+            </select>
+            <span asp-validation-for="JobTypeId" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="GeoDivisionId" class="control-label"></label>
+        <div class="col-md-12">
+            <select asp-for="GeoDivisionId" asp-items="@ViewData["GeoDivisions"] as List<SelectListItem>" class="form-control select2">
+                <option value="0">انتخاب نشده</option>
+            </select>
+            <span asp-validation-for="GeoDivisionId" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="FirstName" class="control-label col-md-12"></label>
+        <div class="col-md-12">
+            <input asp-for="FirstName" class="form-control" />
+            <span asp-validation-for="FirstName" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="LastName" class="control-label col-md-12"></label>
+        <div class="col-md-12">
+            <input asp-for="LastName" class="form-control" />
+            <span asp-validation-for="LastName" class="text-danger"></span>
+        </div>
+    </div>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <div style="float:left">
+            <input type="submit" value="ثبت" class="btn btn-primary mr-2" />
+        </div>
+    </div>
+</form>
+<script>
+    $.validator.unobtrusive.parse("#form");
+    $('.select2').select2({
+        placeholder: 'انتخاب کنید',
+    });
+    $('#form').submit(function (e) {
+        e.preventDefault();
+        if ($('#form').valid()) {
+            $.ajax({
+                type: 'GET',
+                url: "/Apanel/Customers/ValidatePhone?phone=" + $("#PhoneNumber").val(),
+                processData: false,
+                contentType: false
+            }).done(function (response) {
+                if (response === "success") {
+                    $('#form').unbind('submit').submit();
+                } else {
+                    $("#validate-phone").text("کاربر دیگری با این شماره در سیستم ثبت شده");
+                    $("#validate-phone").show();
+                }
+            });
+        }
+    });
+</script>

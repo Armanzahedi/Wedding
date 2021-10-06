@@ -1,0 +1,38 @@
+﻿@model Wedding.Core.Models.ArticleCategory
+
+<input type="hidden" id="title" value="حذف منطقه" />
+
+@if (ViewBag.Children == null)
+{
+    <h4 class="modal-label">
+        آیا مطمئن هستید که می خواهید این رکورد را حذف کنید؟
+    </h4>
+    <dl class="row" style="padding-top:10px">
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd class="col-sm-8">
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+    </dl>
+    <div style="float:left">
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            <input type="submit" value="حذف" class="btn btn-danger mr-2" />
+        }
+    </div>
+}
+else
+{
+    <h4 class="modal-label">
+        این منطقه به دلیل داشتن زیر مجموعه قابل حذف نیست
+    </h4>
+    <div>زیر مجموعه ها</div>
+    <ul>
+        @foreach (var item in ViewBag.Children as List<string>)
+        {
+            <li>@item</li>
+        }
+    </ul>
+}

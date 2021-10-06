@@ -1,0 +1,113 @@
+﻿@{
+    ViewData["Title"] = "نقش ها";
+}
+<input type="hidden" id="nav_active" value="auth_control">
+<input type="hidden" id="nav_item_active" value="roles">
+<div class="page-header">
+    <div>
+        <h3>@ViewData["Title"]</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-area="apanel" asp-controller="Home" asp-action="Index">داشبورد</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><a href="javascript:void(0)">@ViewData["Title"]</a></li>
+            </ol>
+        </nav>
+    </div>
+    <validate-permission asp-controller="Users" asp-action="Create">
+        <a onclick="openModal('/apanel/Roles/Create')" class="btn btn-success text-white font-weight-bolder">
+            رکورد جدید
+        </a>
+    </validate-permission>
+</div>
+<div class="card">
+    <div class="card-body table-responsive">
+        <table id="datatable" class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>نام</th>
+                    <th>دستورات</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        $(function () {
+            @if (ViewBag.Root != null && ViewBag.Root != false)
+            {
+                <text>
+                    localStorage.removeItem('DataTables_datatable_' + window.location.pathname);
+                </text>
+            }
+            var table = $('#datatable').DataTable({
+                ajax: {
+                    url: '/apanel/Roles/LoadGrid',
+                    type: "POST"
+                },
+                stateSave: true,
+                order: [0,"desc"], // descending order with first column witch is hidden id
+                columnDefs: [
+                    {
+                        "targets": [0],
+                        "visible": false,
+                        "searchable": false
+                    }
+                ],
+                columns: [
+                    { data: "Id" },
+                    { data: "Name" },
+                    {
+                        data: "Id",
+                        responsivePriority: -1,
+                        render: function (data, type, row) {
+                            var content = "";
+                            @{
+                                if (await PermissionHelper.UserHasPermission("Roles", "Edit"))
+                                {
+                                    <text>
+                                        if(row.Id !== "@DefaultValues.ADMIN_ROLE_ID" && row.Id !== "@DefaultValues.SUPER_USER_ROLE_ID"){
+                                            var element = `\
+                                        <a class='btn btn-sm btn-clean btn-icon mr-2' data-toggle="tooltip" title="ویرایش" onclick="openModal('/apanel/Roles/Edit/${row.Id}')">\
+                                        <i class='ti-pencil-alt text-secondary table-icon'></i>\
+                                        </a>\
+                                        `;
+                                            content += element;
+                                        }
+                                    </text>
+                                }
+                                if (await PermissionHelper.UserHasPermission("Roles", "Delete"))
+                                {
+                                    <text>
+                                        if(row.Id !== "@DefaultValues.ADMIN_ROLE_ID" && row.Id !== "@DefaultValues.SUPER_USER_ROLE_ID"){
+                                            var element = `\
+                                        <a class='btn btn-sm btn-clean btn-icon ml-2' data-toggle="tooltip" title="حذف" onclick="openModal('/apanel/Roles/Delete/${row.Id}')">\
+                                        <i class='ti-trash table-icon text-danger'></i>\
+                                        </a>\
+                                        `;
+                                            content += element;
+                                        }
+                                    </text>
+                                }
+                                if (await PermissionHelper.UserHasPermission("Roles", "EditRolePermission"))
+                                {
+                                    <text>
+                                        if(row.Id !== "@DefaultValues.SUPER_USER_ROLE_ID"){
+                                            var element = `<a class='btn btn-dark text-white btn-sm ml-2' href='/apanel/Roles/EditRolePermission/${row.Id}'>دسترسی</a>`;
+                                            content += element;
+                                }
+                                    </text>
+                                }
+                             }
+                            return content;
+                        },
+                        width:"230px",
+                        orderable: false
+                    },
+
+                ],
+            });
+        });
+    </script>
+}
