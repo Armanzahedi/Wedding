@@ -298,8 +298,8 @@ namespace Wedding.Web.Areas.Apanel.Controllers
         [HttpPost, ActionName("Delete")]
         public async Task<ActionResult> DeleteConfirmed(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);
-            await _userManager.DeleteAsync(user);
+            //var user = await _userManager.FindByIdAsync(id);
+            await _userRepo.DeleteUser(id);
 
             return RedirectToAction(nameof(Index));
         }

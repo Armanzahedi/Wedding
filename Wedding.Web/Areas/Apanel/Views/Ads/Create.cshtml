@@ -1,0 +1,71 @@
+﻿@model AdCreateDto 
+<input type="hidden" id="title" value="ایجاد آگهی" />
+<form asp-action="Create" method="post" id="form">
+    <input asp-for="AdStatus" type="hidden"/>
+    <input name="referer" id="referer" value="@ViewBag.Referer" type="hidden" />
+
+    <div class="form-group">
+        <label asp-for="Title" class="control-label col-md-12">عنوان آگهی *</label>
+        <div class="col-md-12">
+            <input asp-for="Title" class="form-control"/>
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="PhoneNumber" class="control-label col-md-12">شماره تلفن *</label>
+        <div class="col-md-12">
+            <input asp-for="PhoneNumber" class="form-control" placeholder="09xx-xxx-xxxx"/>
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+    </div>
+    @if (Model.CustomerId != null)
+    {
+        <input asp-for="CustomerId" type="hidden"/>
+    }
+    else
+    {
+        <div class="form-group">
+            <label asp-for="CustomerId" class="control-label"></label>
+            <div class="col-md-12">
+                <select asp-for="CustomerId" asp-items="@ViewData["Customers"] as List<SelectListItem>" class="form-control select2">
+                </select>
+                <span asp-validation-for="CustomerId" class="text-danger"></span>
+            </div>
+        </div>
+    }
+    <div class="form-group">
+        <label asp-for="JobTypeId" class="control-label"></label>
+        <div class="col-md-12">
+            <select asp-for="JobTypeId" asp-items="@ViewData["JobTypes"] as List<SelectListItem>" class="form-control select2">
+            </select>
+            <span asp-validation-for="JobTypeId" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="GeoDivisionId" class="control-label"></label>
+        <div class="col-md-12">
+            <select asp-for="GeoDivisionId" asp-items="@ViewData["GeoDivisions"] as List<SelectListItem>" class="form-control select2">
+            </select>
+            <span asp-validation-for="GeoDivisionId" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+    <label asp-for="Address" class="control-label col-md-12"></label>
+    <div class="col-md-12">
+        <input asp-for="Address" class="form-control"/>
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+    </div>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <div style="float: left">
+            <input type="submit" value="ثبت" class="btn btn-primary mr-2"/>
+        </div>
+    </div>
+</form>
+<script>
+    $.validator.unobtrusive.parse("#form");
+    $('.select2').select2({
+        placeholder: 'انتخاب کنید',
+    });
+</script>

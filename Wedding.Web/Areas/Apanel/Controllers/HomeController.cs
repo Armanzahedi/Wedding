@@ -86,17 +86,17 @@ namespace Wedding.Web.Areas.Apanel.Controllers
                     image.Write(lowQualityFilePath);
                 }
             }
-            //if (System.IO.File.Exists(tempUploadFilePath))
-            //{
-            //    try
-            //    {
-            //        System.IO.File.Delete(tempUploadFilePath);
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        //Do something
-            //    }
-            //}
+            if (System.IO.File.Exists(tempUploadFilePath))
+            {
+                try
+                {
+                    System.IO.File.Delete(tempUploadFilePath);
+                }
+                catch (Exception ex)
+                {
+                    //Do something
+                }
+            }
             return fileName;
         }
     }

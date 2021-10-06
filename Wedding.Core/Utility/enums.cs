@@ -22,4 +22,10 @@ namespace Wedding.Core.Utility
         Purchase = 1,
         Extention = 2
     }
+
+    public enum AdType
+    {
+        Free = 1,
+        Premium = 2
+    }
 }

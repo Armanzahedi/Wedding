@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Wedding.Core.Models;
 using Wedding.Core.Utility;
 using Wedding.Infrastructure;
@@ -73,6 +74,7 @@ namespace Wedding.Web
             services.AddHttpContextAccessor();
             services.AddInfrastructure();
             services.AddSingleton<IEmailSender, EmailSender>();
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             ValidatorOptions.Global.LanguageManager.Culture = new CultureInfo("fa");
 
 

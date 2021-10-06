@@ -9,7 +9,6 @@ namespace Wedding.Core.Models
     {
         public int AdId { get; set; }
         public Ad Ad { get; set; }
-        public PurchaseType PurchaseType { get; set; }
         public DateTime CreateDate { get; set; }
         public DateTime PurchasedFrom { get; set; }
         public DateTime PurchasedTo { get; set; }

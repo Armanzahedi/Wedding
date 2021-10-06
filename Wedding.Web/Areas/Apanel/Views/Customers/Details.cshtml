@@ -19,30 +19,43 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-body">
-                <partial name="_SpinnerPartial" />
+                @await Html.PartialAsync("_SpinnerPartial" ,"customerSpinner")
                 <div id="customer-details"></div>
             </div>
         </div>
+        <div class="card">
+            <div class="card-body">
+                @await Html.PartialAsync("_SpinnerPartial" ,"adsSpinner")
+                <div id="ads-grid"></div>
+            </div>
+                </div>
     </div>
 </div>
 @section scripts {
     <script>
     $(document).ready(function () {
         $.ajax({
-            url: "@Url.Action("CustomerDetails","Customers", new { Id = ViewBag.CustomerId })",
+            url: "@Url.Action("CustomerInfo","Customers", new { Id = ViewBag.CustomerId })",
             success: function (result) {
-                $("#spinner").hide();
+                $("#customerSpinner").hide();
                 $("#customer-details").html(result);
+            }
+        });
+        $.ajax({
+            url: "@Url.Action("AdsGrid","Customers", new { Id = ViewBag.CustomerId })",
+            success: function (result) {
+                $("#adsSpinner").hide();
+                $("#ads-grid").html(result);
             }
         });
     });
         function btnEditCustomer() {
             $("#customer-details").hide();
-            $("#spinner").show();
+            $("#customerSpinner").show();
             $.ajax({
-            url: "@Url.Action("CustomerEdit","Customers", new { Id = ViewBag.CustomerId })",
+            url: "@Url.Action("Edit","Customers", new { Id = ViewBag.CustomerId })",
                 success: function (result) {
-                $("#spinner").hide();
+                $("#customerSpinner").hide();
                 $("#customer-details").show();
                 $("#customer-details").html(result);
             }
@@ -50,11 +63,11 @@
         }
         function btnCancel() {
             $("#customer-details").hide();
-            $("#spinner").show();
+            $("#customerSpinner").show();
             $.ajax({
-            url: "@Url.Action("CustomerDetails","Customers", new { Id = ViewBag.CustomerId })",
+            url: "@Url.Action("CustomerInfo","Customers", new { Id = ViewBag.CustomerId })",
                 success: function (result) {
-                $("#spinner").hide();
+                $("#customerSpinner").hide();
                 $("#customer-details").show();
                 $("#customer-details").html(result);
             }

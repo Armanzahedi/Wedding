@@ -23,6 +23,8 @@ namespace Wedding.Infrastructure
             services.AddScoped<IGeoDivisionRepository, GeoDivisionRepository>();
             services.AddScoped<IJobTypeRepository, JobTypeRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<IAdRepository, AdRepository>();
+            services.AddScoped<IAdContactRepository, AdContactRepository>();
 
             #endregion
 

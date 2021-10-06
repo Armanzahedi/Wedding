@@ -26,6 +26,7 @@ namespace Wedding.Infrastructure.Repositories
         Task<User> GetUserByUserName(string userName);
         IQueryable<User> FilterUsers(string searchString = null);
         Task<IdentityResult> ResetPasswordToDefault(string userId);
+        Task<User> DeleteUser(string userId);
     }
     public class UserRepository : IUserRepository
     {
@@ -44,7 +45,7 @@ namespace Wedding.Infrastructure.Repositories
 
         public IQueryable<User> GetDefaultQuery()
         {
-            return _context.Users;
+            return _context.Users.Where(u=>u.IsDeleted == false);
         }
 
 
@@ -75,12 +76,11 @@ namespace Wedding.Infrastructure.Repositories
         public async Task<bool> UserNameExists(string username, string id = null)
         {
             var user = await _userManager.FindByNameAsync(username);
-            if (user != null)
+            if (user != null && user.IsDeleted == false)
             {
                 if (string.IsNullOrEmpty(id))
                 {
-                    if (user != null)
-                        return true;
+                    return true;
                 }
                 else
                 {
@@ -95,12 +95,11 @@ namespace Wedding.Infrastructure.Repositories
         public async Task<bool> EmailExists(string email, string id = null)
         {
             var user = await _userManager.FindByEmailAsync(email);
-            if (user != null)
+            if (user != null && user.IsDeleted == false)
             {
                 if (string.IsNullOrEmpty(id))
                 {
-                    if (user != null)
-                        return true;
+                    return true;
                 }
                 else
                 {
@@ -138,10 +137,10 @@ namespace Wedding.Infrastructure.Repositories
         {
             IQueryable<User> users = null;
 
-            users = _userManager.Users;
+            users = this.GetDefaultQuery();
 
             if (searchString != null)
-                users = _userManager.Users
+                users = users
                     .Where(u => u.UserName.ToLower().Contains(searchString.ToLower()) || u.Email.ToLower().Contains(searchString.ToLower()));
             return users;
         }
@@ -181,6 +180,17 @@ namespace Wedding.Infrastructure.Repositories
             await _userManager.RemovePasswordAsync(user);
             var result = await _userManager.AddPasswordAsync(user, defaultPassword);
             return result;
+        }
+
+        public async Task<User> DeleteUser(string userId)
+        {
+            var user = await this.GetById(userId);
+            user.IsDeleted = true;
+            user.UserName = null;
+            user.NormalizedUserName = null;
+            await this.UpdateUser(user);
+
+            return user;
         }
     }
 

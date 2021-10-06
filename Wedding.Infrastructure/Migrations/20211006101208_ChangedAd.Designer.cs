@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Wedding.Infrastructure.Context;
 
 namespace Wedding.Infrastructure.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211006101208_ChangedAd")]
+    partial class ChangedAd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,21 +51,21 @@ namespace Wedding.Infrastructure.Migrations
                         new
                         {
                             Id = "29bd76db-5835-406d-ad1d-7a0901447c18",
-                            ConcurrencyStamp = "e17655fd-192e-4c1e-b208-db55979927e1",
+                            ConcurrencyStamp = "6e6a3874-7208-449e-bf2b-67e2a9261c32",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "d7be43da-622c-4cfe-98a9-5a5161120d24",
-                            ConcurrencyStamp = "b62fdf9f-364f-4590-80e8-251d946a17fd",
+                            ConcurrencyStamp = "05df81be-9a39-46cb-98d9-a604198bcc65",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
                             Id = "29bd76db-5835-406d-ad1d-7a0901448abd",
-                            ConcurrencyStamp = "746ae42e-06bf-4ec8-b859-111846028183",
+                            ConcurrencyStamp = "0241ed1c-02d7-4ad8-b2c6-d417de8387da",
                             Name = "Superuser",
                             NormalizedName = "SUPERUSER"
                         });
@@ -195,9 +197,6 @@ namespace Wedding.Infrastructure.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -227,6 +226,9 @@ namespace Wedding.Infrastructure.Migrations
 
                     b.Property<bool>("IsPermenantPremium")
                         .HasColumnType("bit");
+
+                    b.Property<int>("JobId")
+                        .HasColumnType("int");
 
                     b.Property<int>("JobTypeId")
                         .HasColumnType("int");
@@ -266,9 +268,9 @@ namespace Wedding.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerId");
-
                     b.HasIndex("GeoDivisionId");
+
+                    b.HasIndex("JobId");
 
                     b.HasIndex("JobTypeId");
 
@@ -419,6 +421,9 @@ namespace Wedding.Infrastructure.Migrations
 
                     b.Property<long>("Price")
                         .HasColumnType("bigint");
+
+                    b.Property<int>("PurchaseType")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("PurchasedFrom")
                         .HasColumnType("datetime2");
@@ -754,12 +759,6 @@ namespace Wedding.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("GeoDivisionId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("InsertDate")
                         .HasColumnType("datetime2");
 
@@ -768,12 +767,6 @@ namespace Wedding.Infrastructure.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<string>("JobTitle")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("JobTypeId")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("RegisterDate")
                         .HasColumnType("datetime2");
@@ -788,10 +781,6 @@ namespace Wedding.Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("GeoDivisionId");
-
-                    b.HasIndex("JobTypeId");
 
                     b.HasIndex("UserId");
 
@@ -841,6 +830,55 @@ namespace Wedding.Infrastructure.Migrations
                     b.HasIndex("ParentId");
 
                     b.ToTable("GeoDivisions");
+                });
+
+            modelBuilder.Entity("Wedding.Core.Models.Job", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("GeoDivisionId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("InsertDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("InsertUser")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("JobTitle")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("JobTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdateUser")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId")
+                        .IsUnique();
+
+                    b.HasIndex("GeoDivisionId");
+
+                    b.HasIndex("JobTypeId");
+
+                    b.ToTable("Jobs");
                 });
 
             modelBuilder.Entity("Wedding.Core.Models.JobType", b =>
@@ -1459,7 +1497,7 @@ namespace Wedding.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            InsertDate = new DateTime(2021, 10, 6, 15, 13, 36, 803, DateTimeKind.Local).AddTicks(7826),
+                            InsertDate = new DateTime(2021, 10, 6, 13, 42, 7, 604, DateTimeKind.Local).AddTicks(6334),
                             InsertUser = "SuperUser",
                             IsDeleted = false,
                             Key = "DefaultPassword",
@@ -1569,7 +1607,7 @@ namespace Wedding.Infrastructure.Migrations
                             Id = "75625814-138e-4831-a1ea-bf58e211adff",
                             AccessFailedCount = 0,
                             Avatar = "user-avatar.png",
-                            ConcurrencyStamp = "1e2e87c7-2cb3-4920-9eef-03db221eaf34",
+                            ConcurrencyStamp = "ef96dcf0-cf0c-4b31-bc41-e5176003f9c1",
                             Email = "Admin@Admin.com",
                             EmailConfirmed = true,
                             FirstName = "Admin",
@@ -1579,9 +1617,9 @@ namespace Wedding.Infrastructure.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@ADMIN.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAECnNdMUR8b3h7mZnpawQA/NyrRoNL6LEyxfTnSl+cI4VmJRL3pSln+YjjeQ9Af6mqA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEHcJ6mOYP7bXBeFt3UTZXgT1YLFAEhBXuLE5nCYFy6H5VhFm6jIMSjB3CjCNmm+veg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "3d249e80-9de7-48a4-a696-4fe3687fa7b3",
+                            SecurityStamp = "7b153f96-4d41-4826-ba3d-cdd559564659",
                             TwoFactorEnabled = false,
                             UserName = "Admin"
                         },
@@ -1590,7 +1628,7 @@ namespace Wedding.Infrastructure.Migrations
                             Id = "75625814-138e-4831-a1ea-bf58e211acmf",
                             AccessFailedCount = 0,
                             Avatar = "user-avatar.png",
-                            ConcurrencyStamp = "07abb425-28c2-4446-93b7-9ad43a1ba93c",
+                            ConcurrencyStamp = "1bed4cec-ac44-4e5a-aff3-7b0638646729",
                             Email = "Superuser@Superuser.com",
                             EmailConfirmed = true,
                             FirstName = "Superuser",
@@ -1600,9 +1638,9 @@ namespace Wedding.Infrastructure.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "SUPERUSER@SUPERUSER.COM",
                             NormalizedUserName = "SUPERUSER",
-                            PasswordHash = "AQAAAAEAACcQAAAAEDS/8NIvOjEMUZa/URf+f0htcTih7o2jHZA7niG3qG/GggAGjaoniEQghwqlyFHzYg==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEMAMFoS2DYiPlkEAUz+zko6PG9ir4MJpPCgNZzliDZm1V1lSKIxRT1gYc+nC0tLUAA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "2abb16e9-f1b3-4b4f-96b3-dbdc8cb4ed02",
+                            SecurityStamp = "5d729414-b3c2-4f41-abba-023969215035",
                             TwoFactorEnabled = false,
                             UserName = "Superuser"
                         });
@@ -1661,15 +1699,15 @@ namespace Wedding.Infrastructure.Migrations
 
             modelBuilder.Entity("Wedding.Core.Models.Ad", b =>
                 {
-                    b.HasOne("Wedding.Core.Models.Customer", "Customer")
-                        .WithMany("Ads")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Wedding.Core.Models.GeoDivision", "GeoDivision")
                         .WithMany("Ads")
                         .HasForeignKey("GeoDivisionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Wedding.Core.Models.Job", "Job")
+                        .WithMany("Ads")
+                        .HasForeignKey("JobId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1790,14 +1828,6 @@ namespace Wedding.Infrastructure.Migrations
 
             modelBuilder.Entity("Wedding.Core.Models.Customer", b =>
                 {
-                    b.HasOne("Wedding.Core.Models.GeoDivision", "GeoDivision")
-                        .WithMany()
-                        .HasForeignKey("GeoDivisionId");
-
-                    b.HasOne("Wedding.Core.Models.JobType", "JobType")
-                        .WithMany()
-                        .HasForeignKey("JobTypeId");
-
                     b.HasOne("Wedding.Core.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
@@ -1808,6 +1838,23 @@ namespace Wedding.Infrastructure.Migrations
                     b.HasOne("Wedding.Core.Models.GeoDivision", "Parent")
                         .WithMany("Children")
                         .HasForeignKey("ParentId");
+                });
+
+            modelBuilder.Entity("Wedding.Core.Models.Job", b =>
+                {
+                    b.HasOne("Wedding.Core.Models.Customer", "Customer")
+                        .WithOne("Job")
+                        .HasForeignKey("Wedding.Core.Models.Job", "CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Wedding.Core.Models.GeoDivision", "GeoDivision")
+                        .WithMany()
+                        .HasForeignKey("GeoDivisionId");
+
+                    b.HasOne("Wedding.Core.Models.JobType", "JobType")
+                        .WithMany()
+                        .HasForeignKey("JobTypeId");
                 });
 
             modelBuilder.Entity("Wedding.Core.Models.NavigationMenu", b =>

@@ -31,7 +31,8 @@ namespace Wedding.Infrastructure.Repositories
     {
         private readonly MyDbContext _context;
         private readonly ILogRepository _logger;
-        public BaseRepository(MyDbContext context, ILogRepository logger)
+
+        protected BaseRepository(MyDbContext context, ILogRepository logger)
         {
             _context = context;
             _logger = logger;

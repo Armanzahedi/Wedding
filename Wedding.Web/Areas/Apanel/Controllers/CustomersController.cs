@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Wedding.Core.Models;
 using Wedding.Core.Utility;
 using Wedding.Infrastructure.DTOs;
+using Wedding.Infrastructure.ExtensionMethods;
 using Wedding.Infrastructure.Repositories;
 using Wedding.Web.Areas.Apanel.ViewModels;
 
@@ -25,15 +26,17 @@ namespace Wedding.Web.Areas.Apanel.Controllers
         private readonly IJobTypeRepository _jobTypeRepo;
         private readonly IGeoDivisionRepository _geoDivisionRepo;
         private readonly IUserRepository _userRepo;
+        private readonly IAdRepository _adRepo;
         private readonly UserManager<User> _userManager;
 
-        public CustomersController(ICustomerRepository customerRepo, UserManager<User> userManager, IUserRepository userRepo, IJobTypeRepository jobTypeRepo, IGeoDivisionRepository geoDivisionRepo)
+        public CustomersController(ICustomerRepository customerRepo, UserManager<User> userManager, IUserRepository userRepo, IJobTypeRepository jobTypeRepo, IGeoDivisionRepository geoDivisionRepo, IAdRepository adRepo)
         {
             _customerRepo = customerRepo;
             _userManager = userManager;
             _userRepo = userRepo;
             _jobTypeRepo = jobTypeRepo;
             _geoDivisionRepo = geoDivisionRepo;
+            _adRepo = adRepo;
         }
         public IActionResult Index(bool root = false)
         {
@@ -70,43 +73,32 @@ namespace Wedding.Web.Areas.Apanel.Controllers
             new SelectListItem() { 
                 Text = a.Title,
                 Value = a.Id.ToString(),
-                Group = sategroup.Where(s=>s.Name == a.Parent.Title).FirstOrDefault() 
+                Group = sategroup.FirstOrDefault(s => s.Name == a.Parent.Title) 
             }).ToList();
+
             ViewData["JobTypes"] = _jobTypeRepo.GetDefaultQuery().Select(a => new SelectListItem() { Text = a.Title, Value = a.Id.ToString() }).ToList();
 
             return PartialView();
         }
         [HttpPost]
-        public async Task<IActionResult> Create(CreateCustomerViewModel model)
+        public async Task<IActionResult> Create(CustomerCreateDto model)
         {
             if (!ModelState.IsValid)
                 return View(model);
-            
+
             if (await _userRepo.UserNameExists(model.PhoneNumber))
             {
                 ModelState.AddModelError(string.Empty, "شماره همراه در سیستم ثبت شده");
                 return View(model);
             }
-            var user = new User 
-            { 
-                PhoneNumber = model.PhoneNumber,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                UserName = model.PhoneNumber
-            };
-            var result = await _userManager.CreateAsync(user, model.PhoneNumber);
-            if(result.Succeeded == false)
-                return View(model);
 
-            await _userManager.AddToRoleAsync(user, "Customer");
-            var customer = new Customer 
-            { UserId = user.Id,
-              RegisterDate = DateTime.Now,
-              JobTypeId = model.JobTypeId != 0? model.JobTypeId : null,
-              GeoDivisionId = model.GeoDivisionId != 0 ? model.GeoDivisionId : null,
-              JobTitle = model.JobTitle
-            };
-            await _customerRepo.AddOrUpdate(customer);
+            var result = await _customerRepo.CreateCustomer(model);
+            if (result == false)
+            {
+                ModelState.AddModelError(string.Empty, "ثبت مشتری با خطا مواجه شد");
+                return View(model);
+            }
+                
             return RedirectToAction(nameof(Index));
         }
         public IActionResult Details(int id)
@@ -115,7 +107,7 @@ namespace Wedding.Web.Areas.Apanel.Controllers
             return View();
         }
         [AllowAnonymous]
-        public IActionResult CustomerDetails(int id)
+        public IActionResult CustomerInfo(int id)
         {
             var model = _customerRepo.GetCustomerDetails(id);
             return PartialView(model);
@@ -131,8 +123,7 @@ namespace Wedding.Web.Areas.Apanel.Controllers
             return "success";
         }
 
-        [AllowAnonymous]
-        public IActionResult CustomerEdit(int id)
+        public IActionResult Edit(int id)
         {
             var model = _customerRepo.GetCustomerEdit(id);
 
@@ -147,46 +138,56 @@ namespace Wedding.Web.Areas.Apanel.Controllers
                   Text = a.Title,
                   Value = a.Id.ToString(),
                   Selected = (a.Id == model.GeoDivisionId),
-                  Group = sategroup.Where(s => s.Name == a.Parent.Title).FirstOrDefault()
+                  Group = sategroup.FirstOrDefault(s => s.Name == a.Parent.Title)
               }).ToList();
             ViewData["JobTypes"] = _jobTypeRepo.GetDefaultQuery().Select(a => new SelectListItem() { Text = a.Title, Value = a.Id.ToString(),Selected = (a.Id == model.JobTypeId) }).ToList();
             return PartialView(model);
         }
         [HttpPost]
-        [AllowAnonymous]
-        public async Task<IActionResult> CustomerEdit(CustomerEditViewModel model)
+        public async Task<IActionResult> Edit(CustomerEditDto model)
         {
             if (!ModelState.IsValid)
                 return PartialView(model);
 
-            var customer = await _customerRepo.GetById(model.Id);
-            customer.JobTypeId = model.JobTypeId != 0 ? model.JobTypeId : null;
-            customer.GeoDivisionId = model.GeoDivisionId != 0 ? model.GeoDivisionId : null;
-            customer.Address = model.Address;
-            customer.JobTitle = model.JobTitle;
-            await _customerRepo.Update(customer);
+            var result = await _customerRepo.EditCustomer(model);
 
-            var user = await _userRepo.GetById(customer.UserId);
-            user.FirstName = model.FirstName;
-            user.LastName = model.LastName;
-            user.PhoneNumber = model.PhoneNumber;
-            user.UserName = model.PhoneNumber;
-            user.Email = model.Email;
-            user.Avatar = model.Image;
-            await _userRepo.UpdateUser(user);
+            if (result == false)
+            {
+                ModelState.AddModelError(string.Empty, "ثبت تغییرات با خطا مواجه شد");
+                return View(model);
+            }
 
-            return RedirectToAction("Details", new { Id = model.Id});
+            return RedirectToAction("Details", new {model.Id});
         }
-
-        //public async Task<IActionResult> Delete(int id)
-        //{
-        //    return PartialView(await _customerRepo.GetById(id));
-        //}
-        //[HttpPost, ActionName("Delete")]
-        //public async Task<IActionResult> DeleteConfirmed(int id)
-        //{
-        //    await _customerRepo.Delete(id);
-        //    return RedirectToAction(nameof(Index));
-        //}
+        [AllowAnonymous]
+        public IActionResult AdsGrid(int id)
+        {
+            ViewBag.CustomerId = id;
+            var ads = _adRepo.GetCustomerAds(id)
+                .Select(item =>
+                new CustomerAdsGridDto
+                {
+                    Id = item.Id,
+                    Title = item.Title,
+                    AdType = item.GetAdType(),
+                    AdStatus = item.Status,
+                    RegisterDate = new PersianDateTime(item.RegisterDate).ToString("dddd d MMMM yyyy ساعت hh:mm tt")
+                }).ToList();
+            return PartialView(ads);
+        }
+        public async Task<IActionResult> Delete(int id)
+        {
+            var customer = await _customerRepo.GetDefaultQuery().AsQueryable()
+                .Include(c => c.User)
+                .Include(c => c.Ads)
+                .FirstOrDefaultAsync(c => c.Id == id);
+            return PartialView(customer);
+        }
+        [HttpPost, ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            await _customerRepo.DeleteCustomer(id);
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using Wedding.Core.Utility;
 
 namespace Wedding.Infrastructure.DTOs
 {
@@ -58,5 +59,14 @@ namespace Wedding.Infrastructure.DTOs
         [Display(Name = "نام مجموعه")]
         [Required(ErrorMessage = "لطفا {0} را وارد کنید")]
         public string JobTitle { get; set; }
+    }
+
+    public class CustomerAdsGridDto
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public AdType AdType { get; set; }
+        public ApprovalStatus AdStatus { get; set; }
+        public string RegisterDate { get; set; }
     }
 }

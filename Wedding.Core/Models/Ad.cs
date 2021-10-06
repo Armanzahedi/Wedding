@@ -25,6 +25,7 @@ namespace Wedding.Core.Models
         public string Discount { get; set; }
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
+        public DateTime RegisterDate { get; set; }
         public ApprovalStatus Status { get; set; } = ApprovalStatus.Pending;
         public bool IsActive { get; set; } = true;
         public bool IsPermenantPremium { get; set; } = false;

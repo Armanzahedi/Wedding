@@ -20,6 +20,7 @@ namespace Wedding.Core.Models
         public ICollection<Article> Articles { get; set; }
 
         public bool IsEmployee { get; set; } = false;
+        public bool IsDeleted { get; set; } = false;
 
     }
 }

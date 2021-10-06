@@ -1,0 +1,76 @@
+﻿@model List<CustomerAdsGridDto>
+<h5 class="card-title d-flex justify-content-between align-items-center m-b-50">
+    آگهی ها
+    <span>
+        <validate-permission asp-controller="Ads" asp-action="Create">
+            <a onclick="openModal('@Url.Action("Create", "Ads", new { customerId = ViewBag.CustomerId, referer = "customer" })')" class="btn btn-sm primary-font text-success" style="cursor: pointer">
+                <i class="ti-plus m-l-5"></i> ثبت آگهی جدید
+            </a>
+        </validate-permission>
+
+    </span>
+</h5>
+<div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">عنوان آگهی</th>
+                            <th scope="col">تاریخ ثبت</th>
+                            <th scope="col">نوع</th>
+                            <th scope="col">وضعیت</th>
+                            <th class="text-center" scope="col">دستورات</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @if (Model.Any())
+                        {
+                            for (int i = 0; i < Model.Count; i++)
+                            {
+                                <tr>
+                                    <th scope="row">@(i+1)</th>
+                                    <td>@Model[i].Title</td>
+                                    <td>@Model[i].RegisterDate</td>
+                                    <td>
+                                        @if (Model[i].AdType == AdType.Free)
+                                        {
+                                            <span>رایگان</span>
+                                        }
+                                        else
+                                        {
+                                            <span>پریمیوم</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @{
+                                            switch(Model[i].AdStatus) 
+                                            {
+                                                case ApprovalStatus.Review:
+                                                    <span class="badge badge-pill badge-info">در حال بررسی</span>
+                                                    break;
+                                                case ApprovalStatus.Approved:
+                                                    <span class="badge badge-pill badge-success">تأیید شده</span>
+                                                    break;
+                                                case ApprovalStatus.Rejected:
+                                                    <span class="badge badge-pill badge-danger">رد شده</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge badge-pill badge-warning text-white">در انتضار بررسی</span>
+                                                    break;
+                                            }
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <a class="btn btn-dark btn-sm text-white" href="@Url.Action("Details","Ads",new {Id = Model[i].Id, referer="customer"})">جزئیات</a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <span>هنوز آگهی ثبت نشده</span>
+                        }
+                        </tbody>
+                        
+                    </table>
+                </div>
