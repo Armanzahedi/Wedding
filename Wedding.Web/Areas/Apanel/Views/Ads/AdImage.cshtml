@@ -1,0 +1,9 @@
+﻿@{
+    var image = ViewBag.Image != null ? $"/UploadedFiles/Images/{ViewBag.Image}" : "/UploadedFiles/Images/no-photo.png";
+}
+<img src="@image" class="card-img-top">
+    <div class="card-body text-center m-t-70-minus">
+        <a onclick="btnEditImage()" class="btn btn-primary text-white">
+            <i class="ti-pencil m-l-5"></i> ویرایش تصویر
+        </a>
+    </div>

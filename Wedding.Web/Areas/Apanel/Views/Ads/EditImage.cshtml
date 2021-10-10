@@ -1,0 +1,64 @@
+﻿@model Wedding.Core.Models.Ad
+
+<form asp-action="EditImage" method="post" id="imageForm" style="padding: 20px 10px">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="Image" />
+    <div class="form-group">
+        <div class="col-md-12 m-b-50 img-container">
+            <div class="dropzone" id="dropzone" data-input="Image" data-container="main-image-container" data-x="3" data-y="4"></div>
+        </div>
+    </div>
+    <div class="form-group img-container" id="main-image-container" style="display:@(string.IsNullOrEmpty(Model.Image)?"none":"block")">
+        <label>تصویر شاخص</label>
+        <div class="col-md-12">
+            <img src="@(string.IsNullOrEmpty(Model.Image)?null:"/UploadedFiles/Images/"+ Model.Image)" class="main-image rounded" />
+            <button type="button" class="btn bts-sm btn-danger remove-image" data-container="main-image-container" data-input="Image">
+                <i class='ti-trash text-white'></i>
+            </button>
+        </div>
+    </div>
+    <div style="display: flex; justify-content: flex-end">
+        <button type="button" onclick="btnCancel()" class="btn btn-danger btn-uppercase ml-2">
+            انصراف
+        </button>
+
+        <button type="submit" class="btn btn-success btn-uppercase">
+            <i class="ti-check-box m-l-5"></i> ذخیره
+        </button>
+    </div>
+</form>
+<script>
+    var dropzone = new Dropzone("#dropzone");
+    $(".remove-image").click(function () {
+        var input = $(this).data("input");
+        var container = $(this).data("container");
+        if (input != undefined) {
+            $("#" + input).val("");
+        }
+        if (container != undefined) {
+            $("#" + container).hide();
+            var image = $("#" + container).find("img");
+            image.attr("src", "");
+        }
+    });
+    $('#imageForm').submit(function (e) {
+        e.preventDefault();
+        if ($(this).valid()) {
+            $.ajax({
+                type: 'POST',
+                url: "/Apanel/Ads/EditImage",
+                data: { id: $("#Id").val(), image: $("#Image").val()},
+            }).done(function (response) {
+                if (response === "success") {
+                    $.get("/Apanel/Ads/AdImage/" + $("#Id").val(),
+                        function(data) {
+                            $("#image-container").html(data);
+                        });
+                } else {
+                    $("#validate-phone").text("کاربر دیگری با این شماره در سیستم ثبت شده");
+                    $("#validate-phone").show();
+                }
+            });
+        }
+    });
+</script>

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -78,11 +79,48 @@ namespace Wedding.Web.Areas.Apanel.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> Details(int id, string referer)
+        public IActionResult Details(int id, string referer)
+        {
+            ViewBag.Id = id;
+            if (referer != null)
+            {
+                ViewBag.Referer = referer;
+                ViewBag.CustomerId = _adRepo.GetDefaultQuery().Where(a => a.Id == id).Select(a=>a.CustomerId).FirstOrDefault();
+            }
+            return View();
+        }
+        [AllowAnonymous]
+        public async Task<IActionResult> AdStatus(int id)
         {
             var ad = await _adRepo.GetById(id);
-            ViewBag.Referer = referer;
-            return View(ad);
+            return PartialView(ad);
+        }
+        [AllowAnonymous]
+        public async Task<IActionResult> AdInfo(int id)
+        {
+            var ad = await _adRepo.GetById(id);
+            return PartialView(ad);
+        }
+        [AllowAnonymous]
+        public IActionResult AdImage(int id)
+        {
+            ViewBag.Image = _adRepo.GetDefaultQuery().Where(a => a.Id == id).Select(a => a.Image).FirstOrDefault();
+            return PartialView();
+        }
+        [AllowAnonymous]
+        public async Task<IActionResult> EditImage(int id)
+        {
+            var ad = await _adRepo.GetById(id);
+            return PartialView(ad);
+        }
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<string> EditImage(int id, string image)
+        {
+            var ad = await _adRepo.GetById(id);
+            ad.Image = image;
+            await _adRepo.Update(ad);
+            return "success";
         }
     }
 }

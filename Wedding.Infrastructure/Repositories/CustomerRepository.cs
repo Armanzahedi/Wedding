@@ -122,7 +122,7 @@ namespace Wedding.Infrastructure.Repositories
                 customer.GeoDivisionId = model.GeoDivisionId != 0 ? model.GeoDivisionId : null;
                 customer.Address = model.Address;
                 customer.JobTitle = model.JobTitle;
-                base.Update(customer);
+                await base.Update(customer);
                 var user = await _userRepo.GetById(customer.UserId);
                 user.FirstName = model.FirstName;
                 user.LastName = model.LastName;

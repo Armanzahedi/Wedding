@@ -26,7 +26,7 @@
     <!-- begin::theme color -->
     <meta name="theme-color" content="#1b1b1b" />
     <!-- end::theme color -->
-    @RenderSection("Header", required: false)
+    @await RenderSectionAsync("Header", required: false)
 </head>
 <body>
 
@@ -412,6 +412,6 @@
     <script src="/admin/js/app.js"></script>
     <!-- end::custom scripts -->
     <partial name="_ValidationScriptsPartial" />
-    @RenderSection("Scripts", required: false)
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
