@@ -1,22 +1,229 @@
-﻿<h5 class="card-title d-flex align-items-center">
+﻿@using Wedding.Infrastructure.ExtensionMethods
+@model AdInfoDto
+@{
+    var notModifiable = (Model.LastModifiedDate != null && Model.LastModifiedDate.Value.AddHours(4) > DateTime.Now);
+}
+<h5 class="card-title d-flex justify-content-between align-items-center m-b-50">
     اطلاعات
+    @if (notModifiable)
+    {
+        <div class="text-warning" id="edit-countdown"></div>
+    }
 </h5>
-<div class="row">
+<form asp-action="AdInfo" method="post" id="adInfo-form" class="row">
+    <input type="hidden" asp-for="Id"/>
     <div class="col-md-6 col-lg-4">
         <div class="form-group">
-            <label for="email">عنوان آگهی</label>
-            <input type="email" class="form-control" id="email" placeholder="ایمیل را وارد کنید">
-        </div>
-    </div>
-    <div class="col-md-6 col-lg-4">
-        <div class="form-group">
-            <label for="email">آدرس ایمیل</label>
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1">@@</span>
-                </div>
-                <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+            <label asp-for="Title" class="col-md-12">عنوان آگهی *</label>
+            <div class="col-md-12">
+                <input asp-for="Title" class="form-control"/>
+                <span asp-validation-for="Title" class="text-danger"></span>
             </div>
         </div>
     </div>
-</div>
+    <div class="col-md-6 col-lg-4">
+        <div class="form-group">
+            <label asp-for="JobTypeId"></label>
+            <div class="col-md-12">
+                <select asp-for="JobTypeId" asp-items="@ViewData["JobTypes"] as List<SelectListItem>" class="form-control select2">
+                </select>
+                <span asp-validation-for="JobTypeId" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+        <div class="form-group">
+            <label asp-for="GeoDivisionId"></label>
+            <div class="col-md-12">
+                <select asp-for="GeoDivisionId" asp-items="@ViewData["GeoDivisions"] as List<SelectListItem>" class="form-control select2">
+                </select>
+                <span asp-validation-for="GeoDivisionId" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12 col-lg-12">
+        <div class="form-group">
+            <label asp-for="Address" class="col-md-12"></label>
+            <div class="col-md-12">
+                <input asp-for="Address" class="form-control"/>
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+        <div class="form-group">
+            <label asp-for="PhoneNumber1" class="col-md-12"></label>
+            <div class="col-md-12 input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                </div>
+                <input class="form-control" asp-for="PhoneNumber1" placeholder="09xx-xxx-xxxx">
+                <span asp-validation-for="PhoneNumber1" class="text-danger"></span>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+        <div class="form-group">
+            <label asp-for="PhoneNumber2" class="col-md-12"></label>
+            <div class="col-md-12 input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                </div>
+                <input class="form-control" asp-for="PhoneNumber2" disabled="@(Model.IsFree)" placeholder="09xx-xxx-xxxx">
+                <span asp-validation-for="PhoneNumber2" class="text-danger"></span>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+        <div class="form-group">
+            <label asp-for="PhoneNumber3" class="col-md-12"></label>
+            <div class="col-md-12 input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                </div>
+                <input class="form-control" asp-for="PhoneNumber3" disabled="@(Model.IsFree)" placeholder="09xx-xxx-xxxx">
+                <span asp-validation-for="PhoneNumber3" class="text-danger"></span>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12 col-lg-8">
+        <div class="form-group">
+            <label asp-for="Slug" class="col-md-12"></label>
+            <div class="col-md-12 input-group mb-3">
+                <input class="form-control" asp-for="Slug" dir="ltr" disabled="@(Model.IsFree)">
+                <span asp-validation-for="Slug" class="text-danger"></span>
+                <div class="input-group-prepend">
+                    <span class="input-group-text" style="font-size: .9rem">/Ezdevajirani.com</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+        <div class="form-group">
+            <label asp-for="WhatsApp" class="col-md-12"></label>
+            <div class="col-md-12 input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fab fa-whatsapp"></i></span>
+                </div>
+                <input class="form-control" asp-for="WhatsApp" disabled="@(Model.IsFree)" placeholder="09xx-xxx-xxxx">
+                <span asp-validation-for="WhatsApp" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+        <div class="form-group">
+            <label asp-for="Instagram" class="col-md-12"></label>
+            <div class="col-md-12 input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fab fa-instagram"></i></span>
+                </div>
+                <input class="form-control" asp-for="Instagram" disabled="@(Model.IsFree)">
+                <span asp-validation-for="Instagram" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+        <div class="form-group">
+            <label asp-for="Telegram" class="col-md-12"></label>
+            <div class="col-md-12 input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fab fa-telegram"></i></span>
+                </div>
+                <input class="form-control" asp-for="Telegram" disabled="@(Model.IsFree)">
+                <span asp-validation-for="Telegram" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+        <div class="form-group">
+            <label asp-for="Website" class="col-md-12"></label>
+            <div class="col-md-12 input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                </div>
+                <input class="form-control" asp-for="Website" disabled="@(Model.IsFree)">
+                <span asp-validation-for="Website" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12 col-lg-12">
+        <div class="form-group">
+            <label asp-for="Discount" class="col-md-12"></label>
+            <div class="col-md-12 input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="far fa-comment"></i></span>
+                </div>
+                <input class="form-control" asp-for="Discount" disabled="@(Model.IsFree)">
+                <span asp-validation-for="Discount" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12 col-lg-12">
+        <div class="form-group">
+            <label asp-for="Description"></label>
+            <div class="col-md-12">
+                <textarea class="form-control ckEditor" asp-for="Description" rows="200" disabled="@(Model.IsFree)"></textarea>
+                <span asp-validation-for="Description" class="form-text text-danger"></span>
+            </div>
+            <span asp-validation-for="Discount" class="text-danger"></span>
+        </div>
+    </div>
+    <div style="margin: auto; width: 94%">
+        <button class="btn btn-block btn-primary" disabled="@notModifiable">
+            @if (notModifiable)
+            {
+                <span id="btn-countdown"></span>
+            }
+            else
+            {
+                <span id="submit-btn">ذخیره تغییرات</span>
+                @await Html.PartialAsync("_SpinnerPartial", "submitSpinner")
+            }
+        </button>
+    </div>
+</form>
+<script src="~/ckeditor/ckeditor.js"></script>
+<script src="~/ckeditor/customerConfig.js"></script>
+<script>
+    $("#submitSpinner").hide();
+    $.validator.unobtrusive.parse("#adInfo-form");
+    $('.select2').select2({
+    });
+    @if (notModifiable)
+    {
+        <text>
+            var dt = new Date(@Model.LastModifiedDate.Value.AddHours(5).ToJavaScriptMilliseconds());
+            initializeClock('edit-countdown', dt);
+            initializeClock('btn-countdown', dt);
+        </text>
+    }
+
+    $('#adInfo-form').submit(function (e) {
+        e.preventDefault();
+        var description = window.editor.getData();
+        $("#submit-btn").hide();
+        $("#submitSpinner").show();
+        if ($('#adInfo-form').valid()) {
+            $.ajax({
+                type: 'POST',
+                url: "/Apanel/Ads/AdInfo",
+                data: $(this).serialize()+"&Description="+description,
+                dataType: 'json',   
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
+            }).done(function (response) {
+                if (response.status === "success") {
+                    loadInfo();
+                    toastr.success("تغییرات با موفقیت ذخیره شد", "تایید");
+                } else if (response.status === "invalid") {
+                    $("#submit-btn").show();
+                    $("#submitSpinner").hide();
+                    toastr.error("اطلاعات وارد شده صحیح نیست", "خطا");
+                }
+            });
+        }
+    });;
+</script>

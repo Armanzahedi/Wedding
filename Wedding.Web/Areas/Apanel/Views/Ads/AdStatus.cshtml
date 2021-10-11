@@ -1,29 +1,66 @@
-﻿<h5 class="card-title d-flex justify-content-between align-items-center">
+﻿@model AdStatusDto
+<h5 class="card-title d-flex justify-content-between align-items-center">
     وضعیت
     <span>
-        <a onclick="" class="btn btn-sm primary-font text-primary" style="cursor: pointer">
+        <a onclick="openModal('/Apanel/Ads/ChangeAdStatus/@Model.Id')" class="btn btn-sm primary-font text-primary" style="cursor: pointer">
             <i class="ti-pencil m-l-5"></i> تغییر وضعیت
         </a>
     </span>
 </h5>
 <div class="row mb-2">
     <div class="col-6 text-muted">نوع:</div>
-    <div class="col-6">رایگان</div>
+    <div class="col-6">
+        @if (Model.AdType == AdType.Free)
+        {
+            <span>رایگان</span>
+        }
+        else if (Model.AdType == AdType.Premium)
+        {
+            <span>ویژه</span>
+        }
+    </div>
 </div>
 <div class="row mb-2">
     <div class="col-6 text-muted">وضعیت:</div>
-    <div class="col-6">تایید شده</div>
+    <div class="col-6">
+        @{
+            switch (Model.Status)
+            {
+                case ApprovalStatus.Review:
+                    <span>در حال بررسی</span>
+                    break;
+                case ApprovalStatus.Approved:
+                    <span>تأیید شده</span>
+                    break;
+                case ApprovalStatus.Rejected:
+                    <span>رد شده</span>
+                    break;
+                default:
+                    <span>در انتضار بررسی</span>
+                    break;
+            }
+        }
+    </div>
 </div>
 <div class="row mb-2">
-    <div class="col-6 text-muted">تاریخ:</div>
-    <div class="col-6">چهارشنبه 14 مهر 1400 ساعت 05:46 ب.ظ</div>
+    <div class="col-6 text-muted">تاریخ ثبت:</div>
+    <div class="col-6">@(new PersianDateTime(Model.RegisterDate).ToString("dddd d MMMM yyyy"))</div>
 </div>
-<div class="separator mb-3">پرمیوم</div>
-<div class="row mb-2">
-    <div class="col-6 text-muted">فعال از:</div>
-    <div class="col-6">چهارشنبه 14 مهر 1400 ساعت 05:46 ب.ظ</div>
-</div>
-<div class="row mb-2">
-    <div class="col-6 text-muted">فعال تا:</div>
-    <div class="col-6">چهارشنبه 14 مهر 1400 ساعت 05:46 ب.ظ</div>
-</div>
+@if (Model.AdType == AdType.Premium)
+{
+    <div class="separator mb-3">آگهی ویژه</div>
+    if (Model.PremiumFrom != null)
+    {
+        <div class="row mb-2">
+            <div class="col-6 text-muted">فعال از:</div>
+            <div class="col-6">@(new PersianDateTime(Model.PremiumFrom.Value).ToString("dddd d MMMM yyyy"))</div>
+        </div>
+    }
+    if (Model.PremiumTo != null)
+    {
+        <div class="row mb-2">
+            <div class="col-6 text-muted">فعال تا:</div>
+            <div class="col-6">@(new PersianDateTime(Model.PremiumTo.Value).ToString("dddd d MMMM yyyy"))</div>
+        </div>
+    }
+}

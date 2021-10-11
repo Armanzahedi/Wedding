@@ -17,6 +17,12 @@ namespace Wedding.Infrastructure.Repositories
         Task<AdCreateDto> GetAdCreate(int? customerId);
         Task<Ad> CreateAd(AdCreateDto model);
         IQueryable<Ad> GetCustomerAds(int customerId);
+        Task<AdStatusDto> GetStatus(int adId);
+        Task<AdPurchaseHistory> GetLastPurchase(int adId);
+        Task<AdPurchaseHistory> GetCurrentActivePurchase(int adId);
+        Task<AdInfoDto> GetAdInfo(int adId);
+        Task<AdInfoDto> UpdateAdInfo(AdInfoDto model);
+        Task<List<AdGallery>> GetAdGallery(int adId);
     }
     public class AdRepository : BaseRepository<Ad>, IAdRepository
     {
@@ -24,13 +30,17 @@ namespace Wedding.Infrastructure.Repositories
         private readonly ILogRepository _logger;
         private readonly ICustomerRepository _customerRepo;
         private readonly IAdContactRepository _adContactRepo;
+        private readonly IAdPurchaseHistoryRepository _adPurchaseRepo;
+        private readonly IAdGalleryRepository _adGalleryRepo;
 
-        public AdRepository(MyDbContext context, ILogRepository logger, ICustomerRepository customerRepo, IAdContactRepository adContactRepo) : base(context, logger)
+        public AdRepository(MyDbContext context, ILogRepository logger, ICustomerRepository customerRepo, IAdContactRepository adContactRepo, IAdPurchaseHistoryRepository adPurchaseRepo, IAdGalleryRepository adGalleryRepo) : base(context, logger)
         {
             _context = context;
             _logger = logger;
             _customerRepo = customerRepo;
             _adContactRepo = adContactRepo;
+            _adPurchaseRepo = adPurchaseRepo;
+            _adGalleryRepo = adGalleryRepo;
         }
 
         public async Task<AdCreateDto> GetAdCreate(int? customerId)
@@ -40,8 +50,8 @@ namespace Wedding.Infrastructure.Repositories
             else
             {
                 var customer = await _customerRepo.GetDefaultQuery().AsQueryable()
-                    .Include(c=>c.User)
-                    .FirstOrDefaultAsync(c=>c.Id == customerId.Value);
+                    .Include(c => c.User)
+                    .FirstOrDefaultAsync(c => c.Id == customerId.Value);
                 return new AdCreateDto
                 {
                     CustomerId = customerId,
@@ -84,5 +94,112 @@ namespace Wedding.Infrastructure.Repositories
                 .Include(a => a.AdPurchaseHistory)
                 .Where(a => a.CustomerId == customerId);
         }
+        public async Task<AdPurchaseHistory> GetLastPurchase(int adId)
+        {
+            return await _adPurchaseRepo.GetDefaultQuery().AsQueryable().OrderByDescending(p => p.PurchasedFrom)
+                .FirstOrDefaultAsync(p => p.AdId == adId);
+        }
+
+        public async Task<AdPurchaseHistory> GetCurrentActivePurchase(int adId)
+        {
+            return await _adPurchaseRepo.GetDefaultQuery().AsQueryable()
+                .FirstOrDefaultAsync(p => p.PurchasedFrom <= DateTime.Now && p.PurchasedTo >= DateTime.Now);
+        }
+
+        public async Task<AdInfoDto> GetAdInfo(int adId)
+        {
+            var model = await base.GetDefaultQuery().AsQueryable().Include(a => a.AdPurchaseHistory)
+                .Select(a => new AdInfoDto
+                {
+                    Id = a.Id,
+                    IsFree = (a.GetAdType() == AdType.Free),
+                    Title = a.Title,
+                    GeoDivisionId = a.GeoDivisionId,
+                    JobTypeId = a.JobTypeId,
+                    Address = a.Address,
+                    Slug = a.Slug,
+                    Description = a.Description,
+                    WhatsApp = a.WhatsApp,
+                    Instagram = a.Instagram,
+                    Telegram = a.Telegram,
+                    Website = a.Website,
+                    Discount = a.Discount,
+                    LastModifiedDate = a.LastModifiedDate
+                }).FirstOrDefaultAsync();
+
+            var adContacts = await _adContactRepo.GetDefaultQuery().AsQueryable().Where(ac => ac.AdId == adId).OrderBy(ac => ac.InsertDate).ToListAsync();
+
+            model.PhoneNumber1 = adContacts.ElementAtOrDefault(0)?.PhoneNumber;
+
+            model.PhoneNumber2 = adContacts.ElementAtOrDefault(1)?.PhoneNumber;
+
+            model.PhoneNumber3 = adContacts.ElementAtOrDefault(2)?.PhoneNumber;
+
+            return model;
+        }
+
+        public async Task<AdInfoDto> UpdateAdInfo(AdInfoDto model)
+        {
+            var ad = await base.GetDefaultQuery().AsQueryable().Include(a=>a.AdPurchaseHistory)
+                .FirstOrDefaultAsync(a=>a.Id == model.Id);
+            ad.Title = model.Title;
+            ad.JobTypeId = model.JobTypeId.Value;
+            ad.GeoDivisionId = model.GeoDivisionId.Value;
+            ad.Address = model.Address;
+            var adContacts = await _adContactRepo.GetDefaultQuery().AsQueryable()
+                .Where(ac => ac.AdId == model.Id).ToListAsync();
+
+            await _adContactRepo
+                .UpdateAdContact(model.Id,model.PhoneNumber1,adContacts.ElementAtOrDefault(0));
+
+            if (ad.GetAdType() == AdType.Premium)
+            {
+                if (string.IsNullOrEmpty(model.PhoneNumber2) == false)
+                    await _adContactRepo
+                        .UpdateAdContact(model.Id, model.PhoneNumber2, adContacts.ElementAtOrDefault(1));
+
+                if (string.IsNullOrEmpty(model.PhoneNumber3) == false)
+                    await _adContactRepo
+                        .UpdateAdContact(model.Id, model.PhoneNumber3, adContacts.ElementAtOrDefault(2));
+                ad.Slug = model.Slug;
+                ad.WhatsApp = model.WhatsApp;
+                ad.Instagram = model.Instagram;
+                ad.Telegram = model.Telegram;
+                ad.Website = model.Website;
+                ad.Discount = model.Discount;
+                ad.Description = model.Description;
+            }
+            ad.LastModifiedDate = DateTime.Now;
+            await base.Update(ad);
+            return model;
+        }
+
+        public Task<List<AdGallery>> GetAdGallery(int adId)
+        {
+            return _adGalleryRepo.GetDefaultQuery().AsQueryable().Where(ag => ag.AdId == adId).ToListAsync();
+        }
+
+        public async Task<AdStatusDto> GetStatus(int adId)
+        {
+            var model = await base.GetDefaultQuery().AsQueryable().Include(a => a.AdPurchaseHistory).Select(a => new AdStatusDto
+            {
+                Id = a.Id,
+                Status = a.Status,
+                RegisterDate = a.RegisterDate,
+                AdType = a.GetAdType(),
+            }).FirstOrDefaultAsync();
+            if (model != null && model.AdType == AdType.Premium)
+            {
+                var lastPurchase = await GetCurrentActivePurchase(model.Id);
+                if (lastPurchase != null)
+                {
+                    model.PremiumFrom = lastPurchase.PurchasedFrom;
+                    model.PremiumTo = lastPurchase.PurchasedTo;
+                }
+            }
+
+            return model;
+        }
+
     }
 }

@@ -37,6 +37,6 @@ namespace Wedding.Core.Models
         public ICollection<AdReview> AdReviews { get; set; }
         public ICollection<AdTag> AdTags { get; set; }
 
-
+        public DateTime? LastModifiedDate { get; set; }
     }
 }

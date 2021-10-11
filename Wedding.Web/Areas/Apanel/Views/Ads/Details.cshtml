@@ -45,15 +45,15 @@ else
     <div class="col-md-4">
         <div class="card">
             <div class="card-body">
+                @await Html.PartialAsync("_SpinnerPartial", "imageSpinner")
                 <div id="image-container">
-                    @await Html.PartialAsync("_SpinnerPartial", "imageSpinner")
                 </div>
             </div>
         </div>
         <div class="card">
             <div class="card-body">
+                @await Html.PartialAsync("_SpinnerPartial", "adStatusSpinner")
                 <div id="ad-status">
-                    @await Html.PartialAsync("_SpinnerPartial", "adStatusSpinner")
                 </div>
             </div>
         </div>
@@ -61,65 +61,67 @@ else
     <div class="col-md-8">
         <div class="card">
             <div class="card-body">
-                <div id="ad-info">
-                    @await Html.PartialAsync("_SpinnerPartial", "adInfoSpinner")
-                </div>
+                @await Html.PartialAsync("_SpinnerPartial", "adInfoSpinner")
+                <div id="ad-info"></div>
             </div>
         </div>
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title d-flex justify-content-between align-items-center m-b-50">
-                    گالری تصاویر
-                    <span>
-                        <a onclick="" class="btn btn-sm primary-font text-success" style="cursor: pointer">
-                            <i class="ti-plus m-l-5"></i> افزودن تصویر
-                        </a>
-                    </span>
-
-                </h5>
-                <div class="gallery-grid">
-                    <div class="item">
-                        <img src="/UploadedFiles/Images/no-photo.png" />
-                    </div>
-                    <div class="item">
-                        <img src="/UploadedFiles/Images/no-photo.png" />
-                    </div>
-                    <div class="item">
-                        <img src="/UploadedFiles/Images/no-photo.png" />
-                    </div>
-                    <div class="item">
-                        <img src="/UploadedFiles/Images/no-photo.png" />
-                        <span class="status">در انتضار بررسی</span>
-                    </div>
-                </div>
+                @await Html.PartialAsync("_SpinnerPartial", "gallerySpinner")
+                <div id="ad-gallery"></div>
             </div>
         </div>
     </div>
 </div>
 @section scripts {
     <script>
-        $(document).ready(function () {
+        function loadInfo() {
             $.ajax({
                 url: "@Url.Action("AdInfo","Ads", new { id = ViewBag.Id  })",
                 success: function (result) {
-                    $("adInfoSpinner").show();
+                    $("#adInfoSpinner").hide();
+                    $("#ad-info").show();
                     $("#ad-info").html(result);
                 }
             });
+        }
+
+        function loadStatus() {
             $.ajax({
                 url: "@Url.Action("AdStatus","Ads", new { image = ViewBag.Id  })",
                 success: function (result) {
-                    $("adStatusSpinner").show();
+                    $("#adStatusSpinner").hide();
+                    $("#ad-status").show();
                     $("#ad-status").html(result);
                 }
             });
+        }
+
+        function loadImage() {
             $.ajax({
                 url: "@Url.Action("AdImage","Ads", new { id = ViewBag.Id })",
                 success: function (result) {
-                    $("#imageSpinner").show();
+                    $("#imageSpinner").hide();
+                    $("#image-container").show();
                     $("#image-container").html(result);
                 }
             });
+        }
+        function loadGallery() {
+            $.ajax({
+                url: "@Url.Action("AdGallery","Ads", new { id = ViewBag.Id })",
+                success: function (result) {
+                    $("#gallerySpinner").hide();
+                    $("#ad-gallery").show();
+                    $("#ad-gallery").html(result);
+                }
+            });
+        }
+        $(document).ready(function () {
+            loadInfo();
+            loadStatus();
+            loadImage();
+            loadGallery();
         });
         function btnEditImage() {
             $("#image-container").hide();
@@ -128,16 +130,15 @@ else
                 url: "@Url.Action("EditImage","Ads", new { ViewBag.Id })",
                 success: function (result) {
                     $("#imageSpinner").hide();
-                    $("#image-container").show();
                     $("#image-container").html(result);
+                    $("#image-container").show();
                 }
             });
         }
         function btnCancel() {
-            $.get("/Apanel/Ads/AdImage/@(ViewBag.Id)",
-                function(data) {
-                    $("#image-container").html(data);
-                });
+            $("#imageSpinner").show();
+            $("#image-container").hide();
+            loadImage();
         }
     </script>
     }

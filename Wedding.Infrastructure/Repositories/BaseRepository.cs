@@ -74,7 +74,7 @@ namespace Wedding.Infrastructure.Repositories
         }
         public async Task<T> Update(T entity)
         {
-            var oldEntity = _context.Set<T>().Find(entity.Id);
+            var oldEntity = await _context.Set<T>().FindAsync(entity.Id);
             entity.InsertDate = oldEntity.InsertDate;
             entity.InsertUser = oldEntity.InsertUser;
 
@@ -105,7 +105,7 @@ namespace Wedding.Infrastructure.Repositories
         }
         public async Task<T> Delete(int id)
         {
-            var entity = _context.Set<T>().Find(id);
+            var entity = await _context.Set<T>().FindAsync(id);
             entity.IsDeleted = true;
             return await Update(entity);
         }
@@ -116,7 +116,7 @@ namespace Wedding.Infrastructure.Repositories
         }
         public async Task<T> Remove(int id)
         {
-            var entity = _context.Set<T>().Find(id);
+            var entity = await _context.Set<T>().FindAsync(id);
 
             if (entity != null)
             {

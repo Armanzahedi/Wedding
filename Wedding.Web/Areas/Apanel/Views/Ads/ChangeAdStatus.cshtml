@@ -1,0 +1,42 @@
+﻿@model AdStatusDto
+<input type="hidden" id="title" value="تغییر وضعیت آگهی" />
+<form asp-action="ChangeAdStatus" method="post" id="form">
+    <input asp-for="Id" type="hidden"/>
+    <div class="form-group">
+        <label asp-for="Status" class="control-label">وضعیت</label>
+        <div class="col-md-12">
+            <select asp-for="Status" class="form-control">
+
+                <option value="@(ApprovalStatus.Approved)" selected="@(ApprovalStatus.Approved == Model.Status)">تایید شده</option>
+                <option value="@(ApprovalStatus.Pending)" selected="@(ApprovalStatus.Pending == Model.Status)">در انتضار بررسی</option>
+                <option value="@(ApprovalStatus.Rejected)" selected="@(ApprovalStatus.Rejected == Model.Status)">رد شده</option>
+                <option value="@(ApprovalStatus.Review)" selected="@(ApprovalStatus.Review == Model.Status)">در حال بررسی</option>
+            </select>
+            <span asp-validation-for="Status" class="text-danger"></span>
+        </div>
+    </div>
+    <div style="margin: auto; width: 95%">
+        <input type="submit" value="ثبت" class="btn btn-primary btn-block" />
+    </div>
+</form>
+<script>
+    $('#form').submit(function (e) {
+        e.preventDefault();
+        if ($('#form').valid()) {
+            $.ajax({
+                type: 'POST',
+                url: "/Apanel/Ads/ChangeAdStatus",
+                data: $(this).serialize(),
+                dataType: 'json',   
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',  
+            }).done(function (response) {
+                if (response.status == "success") {
+                    $("#myModal").modal('hide');
+                    $("#adStatusSpinner").show();
+                    $("#ad-status").hide();
+                    loadStatus();
+                }
+            });
+        }
+    });
+</script>

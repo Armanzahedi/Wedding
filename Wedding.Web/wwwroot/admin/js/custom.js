@@ -300,7 +300,7 @@ Dropzone.options.dropzone = {
             this.removeFile(file);
         })
     },
-    dictDefaultMessage: "برای ارسال فایل ها را اینجا بکشید",
+    dictDefaultMessage: "برای ارسال فایل را اینجا بکشید یا کلیک کنید",
     dictFallbackMessage: "مرورگر شما از کشیدن و رها سازی برای ارسال فایل پشتیبانی نمی کند.",
     dictFallbackText: "لطفا از فرم زیر برای ارسال فایل های خود مانند گذشته استفاده کنید.",
     dictFileTooBig: "فایل خیلی بزرگ است ({{filesize}}MiB). حداکثر اندازه مجاز: {{maxFilesize}}MiB.",
@@ -412,3 +412,34 @@ Dropzone.options.dropzone = {
 
     }
 };
+
+function getTimeRemaining(endtime) {
+    var total = Date.parse(endtime) - Date.parse(new Date());
+    var seconds = Math.floor((total / 1000) % 60);
+    var minutes = Math.floor((total / 1000 / 60) % 60);
+    var hours = Math.floor((total / (1000 * 60 * 60)) % 24);
+    var days = Math.floor(total / (1000 * 60 * 60 * 24));
+
+    return {
+        total,
+        days,
+        hours,
+        minutes,
+        seconds
+    };
+}
+
+function initializeClock(id, endtime) {
+    var clock = document.getElementById(id);
+    var timeinterval = setInterval(() => {
+        var t = getTimeRemaining(endtime);
+        clock.innerHTML = 'days: ' + t.days + '<br>' +
+            'hours: ' + t.hours + '<br>' +
+            'minutes: ' + t.minutes + '<br>' +
+            'seconds: ' + t.seconds;
+        clock.innerHTML = t.hours + ':' + t.minutes + ':' + t.seconds;
+        if (t.total <= 0) {
+            clearInterval(timeinterval);
+        }
+    }, 1000);
+}

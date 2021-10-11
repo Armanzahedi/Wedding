@@ -1,0 +1,72 @@
+﻿@model Wedding.Core.Models.AdGallery
+<input type="hidden" id="title" value="افزودن تصویر" />
+<form asp-action="CreateGallery" method="post" id="form">
+    <input type="hidden" asp-for="AdId"/>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="Status" class="control-label">وضعیت</label>
+        <div class="col-md-12">
+            <select asp-for="Status" class="form-control">
+
+                <option value="@(ApprovalStatus.Approved)" selected="@(ApprovalStatus.Approved == Model.Status)">تایید شده</option>
+                <option value="@(ApprovalStatus.Pending)" selected="@(ApprovalStatus.Pending == Model.Status)">در انتضار بررسی</option>
+                <option value="@(ApprovalStatus.Rejected)" selected="@(ApprovalStatus.Rejected == Model.Status)">رد شده</option>
+                <option value="@(ApprovalStatus.Review)" selected="@(ApprovalStatus.Review == Model.Status)">در حال بررسی</option>
+            </select>
+            <span asp-validation-for="Status" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label>آپلود تصویر</label>
+        <div class="col-md-12">
+            <div class="dropzone" id="dropzone" data-input="Image" data-container="main-image-container" data-x="3" data-y="2"></div>
+        </div>
+    </div>
+    <input type="hidden" asp-for="Image"/>
+    <div class="form-group img-container" id="main-image-container" style="display: none">
+        <label>تصویر شاخص</label>
+        <div class="col-md-12">
+            <img class="main-image"/>
+            <button type="button" class="btn bts-sm btn-danger remove-image" data-container="main-image-container" data-input="Image">
+                <i class='ti-trash text-white'></i>
+            </button>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="Title" class="control-label col-md-12">عنوان</label>
+        <div class="col-md-12">
+            <input asp-for="Title" class="form-control"/>
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div style="float: left">
+            <input type="submit" value="ثبت" class="btn btn-primary mr-2"/>
+        </div>
+    </div>
+</form>
+<script>
+    $.validator.unobtrusive.parse("#form");
+    new Dropzone("#dropzone");
+    $('#form').submit(function (e) {
+        e.preventDefault();
+        if ($('#form').valid()) {
+            $.ajax({
+                type: 'POST',
+                url: "/Apanel/Ads/CreateGallery",
+                data: $(this).serialize(),
+                dataType: 'json',   
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',  
+            }).done(function (response) {
+                if (response.status === "success") {
+                    $("#myModal").modal('hide');
+                    $("#gallerySpinner").show();
+                    $("#ad-gallery").hide();
+                    loadGallery();
+                } else if (response.status === "invalid") {
+                    toastr.error(response.error, "خطا");
+                }
+            });
+        }
+    });
+</script>

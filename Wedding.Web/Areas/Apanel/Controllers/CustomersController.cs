@@ -171,7 +171,7 @@ namespace Wedding.Web.Areas.Apanel.Controllers
                     Title = item.Title,
                     AdType = item.GetAdType(),
                     AdStatus = item.Status,
-                    RegisterDate = new PersianDateTime(item.RegisterDate).ToString("dddd d MMMM yyyy ساعت hh:mm tt")
+                    RegisterDate = new PersianDateTime(item.RegisterDate).ToString("dddd d MMMM yyyy")
                 }).ToList();
             return PartialView(ads);
         }

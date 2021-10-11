@@ -25,6 +25,8 @@ namespace Wedding.Infrastructure
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IAdRepository, AdRepository>();
             services.AddScoped<IAdContactRepository, AdContactRepository>();
+            services.AddScoped<IAdPurchaseHistoryRepository, AdPurchaseHistoryRepository>();
+            services.AddScoped<IAdGalleryRepository, AdGalleryRepository>();
 
             #endregion
 

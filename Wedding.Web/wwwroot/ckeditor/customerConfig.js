@@ -1,6 +1,5 @@
-ClassicEditor
+﻿ClassicEditor
     .create(document.querySelector('.ckEditor'), {
-
         toolbar: {
             items: [
                 'heading',
@@ -8,18 +7,13 @@ ClassicEditor
                 'alignment',
                 'bold',
                 'italic',
-                'link',
                 'bulletedList',
                 'numberedList',
                 '|',
                 'outdent',
                 'indent',
-                //'imageUpload',
                 'blockQuote',
                 'insertTable',
-                'mediaEmbed',
-                'imageInsert',
-                '|',
                 'horizontalLine',
                 'undo',
                 'redo'
@@ -47,6 +41,7 @@ ClassicEditor
     })
     .then(editor => {
         editor.isReadOnly = editor.sourceElement.disabled;
+        window.editor = editor;
     })
     .catch(error => {
         console.error('Oops, something went wrong!');

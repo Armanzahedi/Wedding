@@ -1,11 +1,11 @@
-﻿@model Wedding.Core.Models.Ad
+﻿@model AdImageDto
 
 <form asp-action="EditImage" method="post" id="imageForm" style="padding: 20px 10px">
     <input type="hidden" asp-for="Id" />
     <input type="hidden" asp-for="Image" />
     <div class="form-group">
         <div class="col-md-12 m-b-50 img-container">
-            <div class="dropzone" id="dropzone" data-input="Image" data-container="main-image-container" data-x="3" data-y="4"></div>
+            <div class="dropzone" id="dropzone" data-input="Image" data-container="main-image-container" data-x="1" data-y="1"></div>
         </div>
     </div>
     <div class="form-group img-container" id="main-image-container" style="display:@(string.IsNullOrEmpty(Model.Image)?"none":"block")">
@@ -49,11 +49,10 @@
                 url: "/Apanel/Ads/EditImage",
                 data: { id: $("#Id").val(), image: $("#Image").val()},
             }).done(function (response) {
-                if (response === "success") {
-                    $.get("/Apanel/Ads/AdImage/" + $("#Id").val(),
-                        function(data) {
-                            $("#image-container").html(data);
-                        });
+                if (response.status === "success") {
+                    $("#image-container").hide();
+                    $("#imageSpinner").show();
+                    loadImage();
                 } else {
                     $("#validate-phone").text("کاربر دیگری با این شماره در سیستم ثبت شده");
                     $("#validate-phone").show();
