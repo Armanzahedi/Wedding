@@ -433,10 +433,6 @@ function initializeClock(id, endtime) {
     var clock = document.getElementById(id);
     var timeinterval = setInterval(() => {
         var t = getTimeRemaining(endtime);
-        clock.innerHTML = 'days: ' + t.days + '<br>' +
-            'hours: ' + t.hours + '<br>' +
-            'minutes: ' + t.minutes + '<br>' +
-            'seconds: ' + t.seconds;
         clock.innerHTML = t.hours + ':' + t.minutes + ':' + t.seconds;
         if (t.total <= 0) {
             clearInterval(timeinterval);

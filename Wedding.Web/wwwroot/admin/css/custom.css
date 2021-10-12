@@ -407,3 +407,6 @@ figure.avatar.avatar-xxl {
     height: 300px;
     border-radius: 5px;
 }
+body {
+    font-size: 13px;
+}

@@ -182,8 +182,8 @@
             else
             {
                 <span id="submit-btn">ذخیره تغییرات</span>
-                @await Html.PartialAsync("_SpinnerPartial", "submitSpinner")
             }
+            @await Html.PartialAsync("_SpinnerPartial", "submitSpinner")
         </button>
     </div>
 </form>
@@ -198,8 +198,14 @@
     {
         <text>
             var dt = new Date(@Model.LastModifiedDate.Value.AddHours(5).ToJavaScriptMilliseconds());
+            $("#submitSpinner").show();
             initializeClock('edit-countdown', dt);
             initializeClock('btn-countdown', dt);
+
+            // Count down loads after 1 second so we need to hide the spinner after one second
+            setInterval(() => {
+                $("#submitSpinner").hide();
+            }, 1000);
         </text>
     }
 

@@ -13,7 +13,7 @@
     موقعیت مکانی
     <span>
         <a onclick="getCurrentLocation()" class="btn btn-sm primary-font text-primary" style="cursor: pointer">
-            <i class="ti-pin m-l-5"></i> دریافت موقعیت مکانی
+            <i class="ti-pin"></i> موقعیت مکانی شما
         </a>
     </span>
 </h5>
@@ -28,7 +28,7 @@
     );
     var map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v9',
+        style: 'mapbox://styles/mapbox/streets-v11',
         center: [@(lng),@(lat)],
         zoom: @(zoom),
         attributionControl: false
@@ -58,7 +58,6 @@
         </text>
     }
     map.on('click',(e) => {
-        console.log(e.lngLat);
         if (marker !== null) {
             marker.remove();    
         }
@@ -97,6 +96,7 @@
             });
         }, function(e) {
             toastr.error("دریافت موقعیت مکانی با خطا مواجه شد", "خطا");
+            console.log(e);
         },{
             enableHighAccuracy: true,
             timeout: 5000,
