@@ -6,7 +6,6 @@
         <label asp-for="Status" class="control-label">وضعیت</label>
         <div class="col-md-12">
             <select asp-for="Status" class="form-control">
-
                 <option value="@(ApprovalStatus.Approved)" selected="@(ApprovalStatus.Approved == Model.Status)">تایید شده</option>
                 <option value="@(ApprovalStatus.Pending)" selected="@(ApprovalStatus.Pending == Model.Status)">در انتضار بررسی</option>
                 <option value="@(ApprovalStatus.Rejected)" selected="@(ApprovalStatus.Rejected == Model.Status)">رد شده</option>

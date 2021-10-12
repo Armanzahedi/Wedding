@@ -23,8 +23,8 @@ namespace Wedding.Core.Models
         public string Website { get; set; }
         public string Address { get; set; }
         public string Discount { get; set; }
-        public decimal Latitude { get; set; }
-        public decimal Longitude { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
         public DateTime RegisterDate { get; set; }
         public ApprovalStatus Status { get; set; } = ApprovalStatus.Pending;
         public bool IsActive { get; set; } = true;
@@ -36,7 +36,7 @@ namespace Wedding.Core.Models
         public ICollection<AdRating> AdRatings { get; set; }
         public ICollection<AdReview> AdReviews { get; set; }
         public ICollection<AdTag> AdTags { get; set; }
-
+        public int GalleryLimit { get; set; } = 17;
         public DateTime? LastModifiedDate { get; set; }
     }
 }

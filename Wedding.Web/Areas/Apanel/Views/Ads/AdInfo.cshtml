@@ -12,6 +12,7 @@
 </h5>
 <form asp-action="AdInfo" method="post" id="adInfo-form" class="row">
     <input type="hidden" asp-for="Id"/>
+    <input type="hidden" asp-for="LastModifiedDate"/>
     <div class="col-md-6 col-lg-4">
         <div class="form-group">
             <label asp-for="Title" class="col-md-12">عنوان آگهی *</label>
@@ -221,7 +222,7 @@
                 } else if (response.status === "invalid") {
                     $("#submit-btn").show();
                     $("#submitSpinner").hide();
-                    toastr.error("اطلاعات وارد شده صحیح نیست", "خطا");
+                    toastr.error("response.error", "خطا");
                 }
             });
         }

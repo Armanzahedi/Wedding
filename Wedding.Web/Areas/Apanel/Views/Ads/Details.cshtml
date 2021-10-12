@@ -2,6 +2,14 @@
 @{
     ViewBag.Title = "جزئیات آگهی";
 }
+@section Header
+{
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.5.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.5.0/mapbox-gl.css' rel='stylesheet' />
+    
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.min.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.css" type="text/css">
+}
 @if (ViewBag.Referer == "customer")
 {
     <input type="hidden" id="nav_active" value="customers">
@@ -57,6 +65,25 @@ else
                 </div>
             </div>
         </div>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title d-flex justify-content-between align-items-center">
+                    دسترسی سریع
+                </h5>
+                <div class="row mb-2">
+                    <div class="col-6">
+                        <a class="btn btn-primary text-white btn-block m-5">درخواست قیمت</a>
+                    </div>
+                    <div class="col-6">
+                        <a class="btn btn-warning text-white btn-block m-5">درخواست رزرو</a>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-info text-white btn-block m-5">نظرات</button>
+                    </div>
+                    <div class="col-6"></div>
+                </div>  
+            </div>
+        </div>
     </div>
     <div class="col-md-8">
         <div class="card">
@@ -65,10 +92,32 @@ else
                 <div id="ad-info"></div>
             </div>
         </div>
+    </div>
+    <div class="col-md-12">
         <div class="card">
             <div class="card-body">
                 @await Html.PartialAsync("_SpinnerPartial", "gallerySpinner")
+                @if (ViewBag.AdType == AdType.Free)
+                {
+                    <div class="premium-disable">
+                        <span>آگهی ویژه</span>
+                    </div>
+                }
                 <div id="ad-gallery"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                @await Html.PartialAsync("_SpinnerPartial", "locationSpinner")
+                @if (ViewBag.AdType == AdType.Free)
+                {
+                    <div class="premium-disable">
+                        <span>آگهی ویژه</span>
+                    </div>
+                }
+                <div id="ad-location"></div>
             </div>
         </div>
     </div>
@@ -88,7 +137,7 @@ else
 
         function loadStatus() {
             $.ajax({
-                url: "@Url.Action("AdStatus","Ads", new { image = ViewBag.Id  })",
+                url: "@Url.Action("AdStatus","Ads", new { id = ViewBag.Id  })",
                 success: function (result) {
                     $("#adStatusSpinner").hide();
                     $("#ad-status").show();
@@ -117,11 +166,22 @@ else
                 }
             });
         }
+        function loadLocation() {
+            $.ajax({
+                url: "@Url.Action("Location","Ads", new { id = ViewBag.Id })",
+                success: function (result) {
+                    $("#locationSpinner").hide();
+                    $("#ad-location").show();
+                    $("#ad-location").html(result);
+                }
+            });
+        }
         $(document).ready(function () {
             loadInfo();
             loadStatus();
             loadImage();
             loadGallery();
+            loadLocation();
         });
         function btnEditImage() {
             $("#image-container").hide();

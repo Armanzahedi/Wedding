@@ -77,7 +77,6 @@
     });
 
     function deleteImage() {
-        console.log($("#Id").val());
         $.ajax({
             type: 'POST',
             url: "/Apanel/Ads/DeleteGallery?id=@(Model.Id)",

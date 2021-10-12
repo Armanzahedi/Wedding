@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,12 +10,12 @@ using Microsoft.EntityFrameworkCore;
 using Wedding.Core.Models;
 using Wedding.Core.Utility;
 using Wedding.Infrastructure.DTOs;
+using Wedding.Infrastructure.ExtensionMethods;
 using Wedding.Infrastructure.Repositories;
 
 namespace Wedding.Web.Areas.Apanel.Controllers
 {
     [Area("Apanel")]
-    [Authorize("Permission")]
     public class AdsController : Controller
     {
         private readonly ICustomerRepository _customerRepo;
@@ -32,11 +33,13 @@ namespace Wedding.Web.Areas.Apanel.Controllers
             _adGalleryRepo = adGalleryRepo;
         }
 
+        [Authorize("Permission")]
         public IActionResult Index()
         {
             return View();
         }
-        public async Task<IActionResult> Create(int? customerId,string referer)
+        [Authorize("Permission")]
+        public async Task<IActionResult> Create(int? customerId, string referer)
         {
             var model = await _adRepo.GetAdCreate(customerId);
 
@@ -55,19 +58,20 @@ namespace Wedding.Web.Areas.Apanel.Controllers
                     Selected = (a.Id == model.GeoDivisionId)
                 }).ToList();
 
-            ViewData["JobTypes"] = _jobTypeRepo.GetDefaultQuery().Select(a => new SelectListItem() { Text = a.Title, Value = a.Id.ToString(),Selected = (a.Id == model.JobTypeId) }).ToList();
+            ViewData["JobTypes"] = _jobTypeRepo.GetDefaultQuery().Select(a => new SelectListItem() { Text = a.Title, Value = a.Id.ToString(), Selected = (a.Id == model.JobTypeId) }).ToList();
 
             if (customerId == null)
             {
-                ViewData["Customers"] = _customerRepo.GetDefaultQuery().AsQueryable().Include(c=>c.User)
-                    .Select(a => new SelectListItem() { Text = $"{a.User.FirstName} {a.User.LastName} - {a.User.PhoneNumber}", Value = a.Id.ToString()}).ToList();
+                ViewData["Customers"] = _customerRepo.GetDefaultQuery().AsQueryable().Include(c => c.User)
+                    .Select(a => new SelectListItem() { Text = $"{a.User.FirstName} {a.User.LastName} - {a.User.PhoneNumber}", Value = a.Id.ToString() }).ToList();
             }
 
             ViewBag.Referer = referer;
             return PartialView(model);
         }
         [HttpPost]
-        public async Task<IActionResult> Create(AdCreateDto model,string referer)
+        [Authorize("Permission")]
+        public async Task<IActionResult> Create(AdCreateDto model, string referer)
         {
             if (!ModelState.IsValid)
                 return View(model);
@@ -81,34 +85,36 @@ namespace Wedding.Web.Areas.Apanel.Controllers
                 return RedirectToAction(nameof(Index));
         }
 
-        [AllowAnonymous]
-        public IActionResult Details(int id, string referer)
+        [Authorize("Permission")]
+        public async Task<IActionResult> Details(int id, string referer)
         {
+            var ad = await _adRepo.GetwithPurchaseHistory(id);
             ViewBag.Id = id;
+            ViewBag.AdType = ad.GetAdType();
             if (referer != null)
             {
                 ViewBag.Referer = referer;
-                ViewBag.CustomerId = _adRepo.GetDefaultQuery().Where(a => a.Id == id).Select(a=>a.CustomerId).FirstOrDefault();
+                ViewBag.CustomerId = _adRepo.GetDefaultQuery().Where(a => a.Id == id).Select(a => a.CustomerId).FirstOrDefault();
             }
             return View();
         }
-        [AllowAnonymous]
+        [Authorize("Details")]
         public async Task<IActionResult> AdStatus(int id)
         {
-            Thread.Sleep(1000);
             var ad = await _adRepo.GetStatus(id);
             return PartialView(ad);
         }
 
-        [AllowAnonymous]
+        [Authorize("Details")]
         public async Task<IActionResult> ChangeAdStatus(int id)
         {
-            Thread.Sleep(1000);
+
             var adStatus = await _adRepo.GetStatus(id);
             return PartialView(adStatus);
         }
-        [AllowAnonymous]
+
         [HttpPost]
+        [Authorize("Details")]
         public async Task<JsonResult> ChangeAdStatus(AdStatusDto model)
         {
             var ad = await _adRepo.GetById(model.Id);
@@ -116,11 +122,9 @@ namespace Wedding.Web.Areas.Apanel.Controllers
             await _adRepo.Update(ad);
             return Json(new { Status = "success" });
         }
-        [AllowAnonymous]
+        [Authorize("Details")]
         public async Task<IActionResult> AdInfo(int id)
         {
-            Thread.Sleep(1000);
-
             var model = await _adRepo.GetAdInfo(id);
 
             var sategroup = new List<SelectListGroup>();
@@ -143,36 +147,42 @@ namespace Wedding.Web.Areas.Apanel.Controllers
             return PartialView(model);
         }
 
-        [AllowAnonymous]
         [HttpPost]
+        [Authorize("Details")]
         public async Task<JsonResult> AdInfo(AdInfoDto model)
         {
             if (!ModelState.IsValid)
-                return Json(new { Status = "invalid" });
+                return Json(new { Status = "invalid",Error = "اطلاعات وارد شده صحیح نیست" });
+
+            if (model.LastModifiedDate != null)
+            {
+                if (model.LastModifiedDate.Value.AddHours(5)> DateTime.Now)
+                {
+                    return Json(new { Status = "invalid",Error = "در حال حاضر بروز رسانی آگهی ممکن نیست" });
+                }
+            }
 
             var result = await _adRepo.UpdateAdInfo(model);
-            return Json(new {Status = "success"});
+            return Json(new { Status = "success" });
         }
-        [AllowAnonymous]
+
+        [Authorize("Details")]
         public IActionResult AdImage(int id)
         {
-            Thread.Sleep(1000);
-
             ViewBag.Image = _adRepo.GetDefaultQuery().Where(a => a.Id == id).Select(a => a.Image).FirstOrDefault();
             return PartialView();
         }
-        [AllowAnonymous]
+
+        [Authorize("Details")]
         public IActionResult EditImage(int id)
         {
-            Thread.Sleep(1000);
-
             var adImage = _adRepo.GetDefaultQuery()
-                .Where(a => a.Id == id).Select(a => new AdImageDto{Id = a.Id, Image = a.Image})
+                .Where(a => a.Id == id).Select(a => new AdImageDto { Id = a.Id, Image = a.Image })
                 .FirstOrDefault();
             return PartialView(adImage);
         }
-        [AllowAnonymous]
         [HttpPost]
+        [Authorize("Details")]
         public async Task<JsonResult> EditImage(AdImageDto adImage)
         {
             var ad = await _adRepo.GetById(adImage.Id);
@@ -181,29 +191,42 @@ namespace Wedding.Web.Areas.Apanel.Controllers
             return Json(new { Status = "success" });
         }
 
-        [AllowAnonymous]
+        [Authorize("Details")]
         public async Task<IActionResult> AdGallery(int id)
         {
-            Thread.Sleep(1000);
+
             ViewBag.Id = id;
             var gallery = await _adRepo.GetAdGallery(id);
+            ViewBag.GalleryLimit = await _adRepo.GetGalleryLimit(id);
             return PartialView(gallery);
         }
-        [AllowAnonymous]
+
+        [Authorize("Details")]
         public IActionResult CreateGallery(int id)
         {
-            var model = new AdGallery{ AdId = id };
+            var model = new AdGallery { AdId = id };
             return PartialView(model);
         }
-        [AllowAnonymous]
+
         [HttpPost]
+        [Authorize("Details")]
         public async Task<JsonResult> CreateGallery(AdGallery model)
         {
             if (!ModelState.IsValid)
-                return Json(new { Status = "invalid",Error= "اطلاعات وارد شده صحیح نیست" });
+                return Json(new { Status = "invalid", Error = "اطلاعات وارد شده صحیح نیست" });
             if (model.Image == null)
             {
-                return Json(new { Status = "invalid",Error= "لطفا تصویر را وارد کنید" });
+                return Json(new { Status = "invalid", Error = "لطفا تصویر را وارد کنید" });
+            }
+
+            var ad = await _adRepo.GetwithPurchaseHistory(model.AdId);
+            if (ad.GetAdType() == AdType.Free)
+            {
+                return Json(new { Status = "invalid", Error = "امکان افزودن گالری در آگهی رایگان وجود نداری" });
+            }
+            if (await _adGalleryRepo.GetAdGalleryCount(model.AdId) >= await _adRepo.GetGalleryLimit(model.AdId))
+            {
+                return Json(new { Status = "invalid", Error = "تعداد تصاویر شما نمیتواند از 20 عدد بیشتر باشد" });
             }
             if (string.IsNullOrEmpty(model.Title))
             {
@@ -214,16 +237,18 @@ namespace Wedding.Web.Areas.Apanel.Controllers
                 model.Title = $"{adTitle} تصویر {number}";
             }
             var result = await _adGalleryRepo.AddOrUpdate(model);
-            return Json(new {Status = "success"});
+            return Json(new { Status = "success" });
         }
-        [AllowAnonymous]
+
+        [Authorize("Details")]
         public async Task<IActionResult> EditGallery(int id)
         {
             var model = await _adGalleryRepo.GetById(id);
             return PartialView(model);
         }
-        [AllowAnonymous]
+
         [HttpPost]
+        [Authorize("Details")]
         public async Task<JsonResult> EditGallery(AdGallery model)
         {
             if (!ModelState.IsValid)
@@ -243,11 +268,35 @@ namespace Wedding.Web.Areas.Apanel.Controllers
             var result = await _adGalleryRepo.AddOrUpdate(model);
             return Json(new { Status = "success" });
         }
-        [AllowAnonymous]
+
         [HttpPost]
+        [Authorize("Details")]
         public async Task<JsonResult> DeleteGallery(int id)
         {
             var result = await _adGalleryRepo.Delete(id);
+            return Json(new { Status = "success" });
+        }
+
+        [Authorize("Details")]
+        public async Task<IActionResult> Location(int id)
+        {
+            var model = await _adRepo.GetDefaultQuery().AsQueryable()
+                .Select(a => new AdLocationDto { Id = id, lng = a.Longitude, lat = a.Latitude })
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            return PartialView(model);
+        }
+
+        [HttpPost]
+        [Authorize("Details")]
+        public async Task<JsonResult> UpdateCoordinates(int id, double lng, double lat)
+        {
+            var ad = await _adRepo.GetwithPurchaseHistory(id);
+            if (ad.GetAdType() == AdType.Free)
+            {
+                return Json(new { Status = "invalid",Error = "امکان ثبت موقعیت مکانی در آگهی رایگان وجود نداری" });
+            }
+            var result = await _adRepo.UpdateCoordinates(id, lng, lat);
             return Json(new { Status = "success" });
         }
     }

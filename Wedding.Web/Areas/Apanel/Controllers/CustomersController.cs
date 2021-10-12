@@ -164,6 +164,7 @@ namespace Wedding.Web.Areas.Apanel.Controllers
         {
             ViewBag.CustomerId = id;
             var ads = _adRepo.GetCustomerAds(id)
+                .OrderByDescending(a=>a.InsertDate)
                 .Select(item =>
                 new CustomerAdsGridDto
                 {

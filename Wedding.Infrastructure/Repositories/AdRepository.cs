@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Wedding.Core.Models;
 using Wedding.Core.Utility;
 using Wedding.Infrastructure.Context;
@@ -23,6 +24,9 @@ namespace Wedding.Infrastructure.Repositories
         Task<AdInfoDto> GetAdInfo(int adId);
         Task<AdInfoDto> UpdateAdInfo(AdInfoDto model);
         Task<List<AdGallery>> GetAdGallery(int adId);
+        Task<Ad> GetwithPurchaseHistory(int adId);
+        Task<Ad> UpdateCoordinates(int adId, double lng, double lat);
+        Task<int> GetGalleryLimit(int adId);
     }
     public class AdRepository : BaseRepository<Ad>, IAdRepository
     {
@@ -125,7 +129,7 @@ namespace Wedding.Infrastructure.Repositories
                     Website = a.Website,
                     Discount = a.Discount,
                     LastModifiedDate = a.LastModifiedDate
-                }).FirstOrDefaultAsync();
+                }).FirstOrDefaultAsync(a=> a.Id == adId);
 
             var adContacts = await _adContactRepo.GetDefaultQuery().AsQueryable().Where(ac => ac.AdId == adId).OrderBy(ac => ac.InsertDate).ToListAsync();
 
@@ -179,6 +183,29 @@ namespace Wedding.Infrastructure.Repositories
             return _adGalleryRepo.GetDefaultQuery().AsQueryable().Where(ag => ag.AdId == adId).ToListAsync();
         }
 
+        public async Task<Ad> GetwithPurchaseHistory(int adId)
+        {
+            return await base.GetDefaultQuery().AsQueryable().Include(a => a.AdPurchaseHistory)
+                .FirstOrDefaultAsync(a=>a.Id == adId);
+        }
+
+        public async Task<Ad> UpdateCoordinates(int adId, double lng, double lat)
+        {
+            var ad = await base.GetById(adId);
+            ad.Longitude = lng;
+            ad.Latitude = lat;
+            await base.Update(ad);
+            return ad;
+        }
+
+        public async Task<int> GetGalleryLimit(int adId)
+        {
+            var galleryLimit = await base.GetDefaultQuery().AsQueryable()
+                .Select(a => new AdGalleryLimitDto() { Id = a.Id, Limit = a.GalleryLimit })
+                .FirstOrDefaultAsync(a => a.Id == adId);
+            return galleryLimit.Limit;
+        }
+
         public async Task<AdStatusDto> GetStatus(int adId)
         {
             var model = await base.GetDefaultQuery().AsQueryable().Include(a => a.AdPurchaseHistory).Select(a => new AdStatusDto
@@ -187,7 +214,7 @@ namespace Wedding.Infrastructure.Repositories
                 Status = a.Status,
                 RegisterDate = a.RegisterDate,
                 AdType = a.GetAdType(),
-            }).FirstOrDefaultAsync();
+            }).FirstOrDefaultAsync(a=>a.Id == adId);
             if (model != null && model.AdType == AdType.Premium)
             {
                 var lastPurchase = await GetCurrentActivePurchase(model.Id);

@@ -85,4 +85,16 @@ namespace Wedding.Infrastructure.DTOs
         public int Id { get; set; }
         public string Image { get; set; }
     }
+    public class AdLocationDto
+    {
+        public int Id { get; set; }
+        public double? lng { get; set; }
+        public double? lat { get; set; }
+    }
+
+    public class AdGalleryLimitDto
+    {
+        public int Id { get; set; }
+        public int Limit { get; set; }
+    }
 }

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Wedding.Infrastructure.Context;
 
 namespace Wedding.Infrastructure.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211012110143_ChangedAdLngLat")]
+    partial class ChangedAdLngLat
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,21 +51,21 @@ namespace Wedding.Infrastructure.Migrations
                         new
                         {
                             Id = "29bd76db-5835-406d-ad1d-7a0901447c18",
-                            ConcurrencyStamp = "9dda1427-312f-46ee-91c2-f689a9374e9b",
+                            ConcurrencyStamp = "c328d7bf-c5f5-41a4-bb58-2c3af4547f7a",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "d7be43da-622c-4cfe-98a9-5a5161120d24",
-                            ConcurrencyStamp = "21b14b3d-70b0-4dd5-aac7-0a5c7377197e",
+                            ConcurrencyStamp = "0e2de98a-63d8-42a9-9164-1aa1b3f112ca",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
                             Id = "29bd76db-5835-406d-ad1d-7a0901448abd",
-                            ConcurrencyStamp = "9334f1d5-9891-479b-b4ec-7591537504a8",
+                            ConcurrencyStamp = "4ce948fb-2ae5-43fa-96b5-94ea393c01d2",
                             Name = "Superuser",
                             NormalizedName = "SUPERUSER"
                         });
@@ -203,9 +205,6 @@ namespace Wedding.Infrastructure.Migrations
 
                     b.Property<string>("Discount")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("GalleryLimit")
-                        .HasColumnType("int");
 
                     b.Property<int>("GeoDivisionId")
                         .HasColumnType("int");
@@ -1465,7 +1464,7 @@ namespace Wedding.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            InsertDate = new DateTime(2021, 10, 12, 16, 4, 10, 109, DateTimeKind.Local).AddTicks(4063),
+                            InsertDate = new DateTime(2021, 10, 12, 14, 31, 42, 844, DateTimeKind.Local).AddTicks(8909),
                             InsertUser = "SuperUser",
                             IsDeleted = false,
                             Key = "DefaultPassword",
@@ -1575,7 +1574,7 @@ namespace Wedding.Infrastructure.Migrations
                             Id = "75625814-138e-4831-a1ea-bf58e211adff",
                             AccessFailedCount = 0,
                             Avatar = "user-avatar.png",
-                            ConcurrencyStamp = "0c9ffbb9-a95c-419f-9b32-e37acbcf3e18",
+                            ConcurrencyStamp = "2e2f25aa-1518-4458-a019-9610d027043d",
                             Email = "Admin@Admin.com",
                             EmailConfirmed = true,
                             FirstName = "Admin",
@@ -1585,9 +1584,9 @@ namespace Wedding.Infrastructure.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@ADMIN.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEITl/o8h90KCK4eJylGHS8ybuE+WF1GR+A4Hs8s7s7kfoGoesv9bwnrGto8aPKQCtw==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEPz0HNBRjQtjKY1bdkogNkzDE8/6qfeYAIs5yJdMQKvfwcQ7EzWA4Ye6L1AX/8DtEA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "cf42b351-7270-4f07-a8ef-b51856c2738c",
+                            SecurityStamp = "a7d92bf9-cb3a-413d-a8cd-7117964855ef",
                             TwoFactorEnabled = false,
                             UserName = "Admin"
                         },
@@ -1596,7 +1595,7 @@ namespace Wedding.Infrastructure.Migrations
                             Id = "75625814-138e-4831-a1ea-bf58e211acmf",
                             AccessFailedCount = 0,
                             Avatar = "user-avatar.png",
-                            ConcurrencyStamp = "4acb5b22-2f29-4e57-ba04-97be1d1bbfe5",
+                            ConcurrencyStamp = "3329a5b9-5cd1-49a8-8adc-aaf098cde42b",
                             Email = "Superuser@Superuser.com",
                             EmailConfirmed = true,
                             FirstName = "Superuser",
@@ -1606,9 +1605,9 @@ namespace Wedding.Infrastructure.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "SUPERUSER@SUPERUSER.COM",
                             NormalizedUserName = "SUPERUSER",
-                            PasswordHash = "AQAAAAEAACcQAAAAEBnvrA96KfZopzzzRkn/CxIugNr7OSJdjZ6shYSVjkq4CPAV7PtBO28C7aboMML2fQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEP04w19zjveW3loIRtiZ1m7DlDjiuq4gK+vuMd5hl2AJUk6FOTKJ1P4CMQC1t34+Cw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "05295c1d-b042-479f-8d58-c0bb0b2e148e",
+                            SecurityStamp = "9028bf38-37f5-4fff-a40f-b2bdf99dabb8",
                             TwoFactorEnabled = false,
                             UserName = "Superuser"
                         });

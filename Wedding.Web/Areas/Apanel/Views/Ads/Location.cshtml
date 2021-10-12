@@ -1,0 +1,106 @@
+﻿@model AdLocationDto
+@{
+    var hasCoords = ((Model.lng != null && Model.lng != 0) && (Model.lat != null && Model.lat != 0));
+    var lng = (Model.lng != null && Model.lng != 0)? Model.lng : 51.3890;
+    var lat = (Model.lat != null && Model.lat != 0)? Model.lat : 35.6892;
+    var zoom = 9;
+    if (hasCoords)
+    {
+        zoom = 15;
+    }
+}
+<h5 class="card-title d-flex justify-content-between align-items-center">
+    موقعیت مکانی
+    <span>
+        <a onclick="getCurrentLocation()" class="btn btn-sm primary-font text-primary" style="cursor: pointer">
+            <i class="ti-pin m-l-5"></i> دریافت موقعیت مکانی
+        </a>
+    </span>
+</h5>
+<h6 class="card-subtitle mb-2 text-muted">لطفا مکان مورد نظر خود را روی نقشه انتخاب کنید</h6>
+<div id='map' class="map"></div>
+<script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoiYXJtYW56ZGkiLCJhIjoiY2s2Z244enc1MG8xaDNubWxlOWI2M2d0biJ9.NN6Md70HwWq6wd9b-GaKnQ';
+    mapboxgl.setRTLTextPlugin(
+        'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.3/mapbox-gl-rtl-text.js',
+        null,
+        true
+    );
+    var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v9',
+        center: [@(lng),@(lat)],
+        zoom: @(zoom),
+        attributionControl: false
+    });
+    map.addControl(
+        new MapboxGeocoder({
+            accessToken: mapboxgl.accessToken,
+            mapboxgl: mapboxgl
+        })
+    );
+    map.addControl(new mapboxgl.NavigationControl());
+    map.addControl(new mapboxgl.FullscreenControl());
+    @if (hasCoords)
+        {
+            <text>
+                var marker = new mapboxgl.Marker({
+                        color:"#4c32a8"
+                    })
+                    .setLngLat([@(lng),@(lat)])
+                    .addTo(map);
+            </text>
+        }
+    else
+    {
+        <text>
+            var marker = null;
+        </text>
+    }
+    map.on('click',(e) => {
+        console.log(e.lngLat);
+        if (marker !== null) {
+            marker.remove();    
+        }
+        $.ajax({
+            type: 'POST',
+            url: "/Apanel/Ads/UpdateCoordinates",
+            processData: false,
+            contentType: false,
+            data:"id=@(Model.Id)&lng="+ e.lngLat.lng +"&lat="+ e.lngLat.lat,
+            dataType: 'json',   
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
+
+        }).done(function (response) {
+            if (response.status === "success") {
+                toastr.success("مقعیت مکانی با موفقیت ذخیره شد", "تایید");
+            } else if(response.status === "invalid") {
+                toastr.error(response.error, "خطا");
+            }
+        });
+        marker = new mapboxgl.Marker({
+                color:"#4c32a8"
+            })
+            .setLngLat(e.lngLat)
+            .addTo(map);
+    });
+
+    function getCurrentLocation() {
+        navigator.geolocation.getCurrentPosition(function(e) {
+            map.flyTo({
+                center: [
+                    e.coords.longitude,
+                    e.coords.latitude
+                ],
+                zoom:15,
+                essential: true
+            });
+        }, function(e) {
+            toastr.error("دریافت موقعیت مکانی با خطا مواجه شد", "خطا");
+        },{
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+        });
+    }
+</script>
