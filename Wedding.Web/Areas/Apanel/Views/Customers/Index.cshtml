@@ -62,8 +62,14 @@
                 columns: [
                     { data: "Id" },
                     { data: "FullName" },
-                    { data: "CustomerNumber" },
-                    { data: "PhoneNumber" },
+                    {
+                        data: "CustomerNumber",
+                        width:"150px",
+                    },
+                    {
+                        data: "PhoneNumber",
+                        width:"150px",
+                    },
                     {
                         data: "Id",
                         render: function (data, type, row) {
@@ -79,7 +85,7 @@
                              }
                             return content;
                         },
-                        width:"230px",
+                        width:"100px",
                         orderable: false
                     },
 

@@ -1,17 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using DataTablesParser;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Wedding.Core.Models;
 using Wedding.Core.Utility;
 using Wedding.Infrastructure.DTOs;
 using Wedding.Infrastructure.ExtensionMethods;
 using Wedding.Infrastructure.Repositories;
+using Wedding.Web.Areas.Apanel.ViewModels;
 
 namespace Wedding.Web.Areas.Apanel.Controllers
 {
@@ -34,9 +38,64 @@ namespace Wedding.Web.Areas.Apanel.Controllers
         }
 
         [Authorize("Permission")]
-        public IActionResult Index()
+        public IActionResult Index(bool root = false)
         {
-            return View();
+            ViewBag.Root = root;
+            var model = new AdFilterViewModel();
+            return View(model);
+        }
+        [HttpPost]
+        [AllowAnonymous]
+        public string LoadGrid(AdFilterViewModel model)
+        {
+
+            IEnumerable<AdGridViewModel> query = _adRepo.GetDefaultQuery().AsQueryable()
+                .Include(a => a.AdPurchaseHistory)
+                .Include(a => a.Customer)
+                .ThenInclude(c=>c.User)
+                .Select(a => new AdGridViewModel
+                {
+                    Id = a.Id,
+                    Title = a.Title,
+                    Customer = $"{a.Customer.User.FirstName} {a.Customer.User.LastName} - {a.Customer.User.PhoneNumber}",
+                    AdType = (a.IsPermenantPremium ||
+                              (a.AdPurchaseHistory != null && a.AdPurchaseHistory.Any(a => a.PurchasedFrom <= DateTime.Now && a.PurchasedTo >= DateTime.Now)))? AdType.Premium : AdType.Free,
+                    PersianDate = new PersianDateTime(a.RegisterDate).ToPersianDateString(),
+                    RegisterDate = a.RegisterDate,
+                    AdStatus = a.Status
+                });
+            if (string.IsNullOrEmpty(model.Title) == false)
+            {
+                query = query.Where(a => a.Title.ToLower().Trim().Contains(model.Title.ToLower().Trim()));
+            }
+            if (string.IsNullOrEmpty(model.FromDate) == false)
+            {
+                var from = DateTime.Parse(model.FromDate, new CultureInfo("fa-IR"));
+                query = query.Where(a => a.RegisterDate >= from);
+            }
+            if (string.IsNullOrEmpty(model.ToDate) == false)
+            {
+                var to = DateTime.Parse(model.ToDate, new CultureInfo("fa-IR"));
+                query = query.Where(a => a.RegisterDate <= to);
+            }
+
+            if (model.AdType != 0)
+            {
+                query = query.Where(a => a.AdType == model.AdType);
+            }
+            if (model.AdStatus != 0)
+            {
+                query = query.Where(a => a.AdStatus == model.AdStatus);
+            }
+
+            if (string.IsNullOrEmpty(model.Customer) == false)
+            {
+                query = query.Where(a => a.Customer
+                    .ToLower().Trim().Contains(model.Customer.Trim().ToLower())).ToList();
+            }
+
+            var parser = new Parser<AdGridViewModel>(Request.Form, query.AsQueryable());
+            return JsonConvert.SerializeObject(parser.Parse());
         }
         [Authorize("Permission")]
         public async Task<IActionResult> Create(int? customerId, string referer)
@@ -88,13 +147,16 @@ namespace Wedding.Web.Areas.Apanel.Controllers
         [Authorize("Permission")]
         public async Task<IActionResult> Details(int id, string referer)
         {
-            var ad = await _adRepo.GetwithPurchaseHistory(id);
-            ViewBag.Id = id;
-            ViewBag.AdType = ad.GetAdType();
-            if (referer != null)
+            if (id != 0)
             {
-                ViewBag.Referer = referer;
-                ViewBag.CustomerId = _adRepo.GetDefaultQuery().Where(a => a.Id == id).Select(a => a.CustomerId).FirstOrDefault();
+                var ad = await _adRepo.GetwithPurchaseHistory(id);
+                ViewBag.Id = id;
+                ViewBag.AdType = ad.GetAdType();
+                if (referer != null)
+                {
+                    ViewBag.Referer = referer;
+                    ViewBag.CustomerId = _adRepo.GetDefaultQuery().Where(a => a.Id == id).Select(a => a.CustomerId).FirstOrDefault();
+                }
             }
             return View();
         }
