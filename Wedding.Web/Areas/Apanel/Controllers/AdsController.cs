@@ -167,7 +167,7 @@ namespace Wedding.Web.Areas.Apanel.Controllers
             return PartialView(ad);
         }
 
-        [Authorize("Details")]
+        [Authorize("Permission")]
         public async Task<IActionResult> ChangeAdStatus(int id)
         {
 
@@ -176,7 +176,7 @@ namespace Wedding.Web.Areas.Apanel.Controllers
         }
 
         [HttpPost]
-        [Authorize("Details")]
+        [Authorize("Permission")]
         public async Task<JsonResult> ChangeAdStatus(AdStatusDto model)
         {
             var ad = await _adRepo.GetById(model.Id);
@@ -360,6 +360,11 @@ namespace Wedding.Web.Areas.Apanel.Controllers
             }
             var result = await _adRepo.UpdateCoordinates(id, lng, lat);
             return Json(new { Status = "success" });
+        }
+
+        public async Task<IActionResult> UpgradeAd(int ind)
+        {
+            return null;
         }
     }
 }

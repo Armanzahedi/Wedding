@@ -1,0 +1,70 @@
+﻿@model List<Wedding.Core.Models.WalletTransaction>
+<h5 class="card-title d-flex justify-content-between align-items-center m-b-50">
+    تاریخچه تراکنش ها
+</h5>
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">نوع</th>
+                <th scope="col">مقدار</th>
+                <th scope="col">وضعیت</th>
+                <th scope="col">تاریخ</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                @if (Model == null || Model.Any() == false)
+                {
+                    <span>هنوز هیچ داده ای ثبت نشده</span>
+                }
+                else
+                {
+                    foreach (var item in Model)
+                    {
+                        <td>
+                            @{
+                                switch (item.TransactionType)
+                                {
+                                    case WalletTransactionType.Deposit:
+                                        <span>واریز وجه</span>
+                                        break;
+                                    case WalletTransactionType.Withdraw:
+                                        <span>برداشت وجه</span>
+                                        break;
+                                    case WalletTransactionType.Charge:
+                                        <span>شارژ کیف پول</span>
+                                        break;
+                                    case WalletTransactionType.Payment:
+                                        <span>پرداخت</span>
+                                        break;
+                                    default:
+                                        <span>-</span>
+                                        break;
+                                }
+                            }
+                        </td>
+                        <td>@item.Amount تومان</td>
+                        <td>
+                            @{
+                                switch (item.TransactionStatus)
+                                {
+                                    case WalletTransctionStatus.Pending:
+                                        <span class="badge badge-pill badge-info">در انتضار بررسی</span>
+                                        break;
+                                    case WalletTransctionStatus.Processed:
+                                        <span class="badge badge-pill badge-success">تأیید شده</span>
+                                        break;
+                                    case WalletTransctionStatus.Failed:
+                                        <span class="badge badge-pill badge-danger">رد شده</span>
+                                        break;
+                                }
+                            }
+                        </td>
+                        <td>@(new PersianDateTime(item.CreateDate).ToPersianDigitalDateTimeString())</td>
+                    }
+                }
+            </tr>
+        </tbody>
+    </table>
+</div>

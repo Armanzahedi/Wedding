@@ -26,15 +26,17 @@ namespace Wedding.Infrastructure.Repositories
         private readonly ILogRepository _logger;
         private readonly UserManager<User> _userManager;
         private readonly IUserRepository _userRepo;
+        private readonly IWalletRepository _walletRepo;
 
 
 
-        public CustomerRepository(MyDbContext context, ILogRepository logger, UserManager<User> userManager, IUserRepository userRepo) : base(context, logger)
+        public CustomerRepository(MyDbContext context, ILogRepository logger, UserManager<User> userManager, IUserRepository userRepo, IWalletRepository walletRepo) : base(context, logger)
         {
             _context = context;
             _logger = logger;
             _userManager = userManager;
             _userRepo = userRepo;
+            _walletRepo = walletRepo;
         }
         public IQueryable<Customer> GetCustomerWithRelations(int customerId)
         {
@@ -105,6 +107,13 @@ namespace Wedding.Infrastructure.Repositories
                     JobTitle = model.JobTitle
                 };
                 await base.AddOrUpdate(customer);
+
+                var wallet = new Wallet
+                {
+                    CustomerId = customer.Id,
+                    Balance = 0
+                };
+                await _walletRepo.Add(wallet);
 
                 return true;
             }

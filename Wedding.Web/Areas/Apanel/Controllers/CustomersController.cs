@@ -106,6 +106,13 @@ namespace Wedding.Web.Areas.Apanel.Controllers
             ViewBag.CustomerId = id;
             return View();
         }
+
+        [AllowAnonymous]
+        public IActionResult Wallet(int id)
+        {
+            ViewBag.Id = id;
+            return View();
+        }
         [AllowAnonymous]
         public IActionResult CustomerInfo(int id)
         {

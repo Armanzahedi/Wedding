@@ -18,5 +18,7 @@ namespace Wedding.Core.Models
         public int? GeoDivisionId { get; set; }
         public GeoDivision GeoDivision { get; set; }
         public ICollection<Ad> Ads { get; set; }
+        public ICollection<PaymentAccount> PaymentAccountNumbers { get; set; }
+
     }
 }

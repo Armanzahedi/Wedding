@@ -35,6 +35,10 @@ namespace Wedding.Infrastructure.Context
         public DbSet<AdRating> AdRatings { get; set; }
         public DbSet<AdReview> AdReviews { get; set; }
         public DbSet<AdTag> AdTags { get; set; }
+        public DbSet<Wallet> Wallets { get; set; }
+        public DbSet<WalletTransaction> WalletTransactions { get; set; }
+        public DbSet<PaymentAccount> PaymentAccounts { get; set; }
+
 
         #endregion
 

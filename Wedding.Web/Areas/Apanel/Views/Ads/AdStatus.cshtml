@@ -1,11 +1,13 @@
 ﻿@model AdStatusDto
 <h5 class="card-title d-flex justify-content-between align-items-center">
     وضعیت
-    <span>
-        <a onclick="openModal('/Apanel/Ads/ChangeAdStatus/@Model.Id')" class="btn btn-sm primary-font text-primary" style="cursor: pointer">
-            <i class="ti-pencil m-l-5"></i> تغییر وضعیت
-        </a>
-    </span>
+    <validate-permission asp-controller="Ads" asp-action="ChangeAdStatus">
+        <span>
+            <a onclick="openModal('/Apanel/Ads/ChangeAdStatus/@Model.Id')" class="btn btn-sm primary-font text-primary" style="cursor: pointer">
+                <i class="ti-pencil m-l-5"></i> تغییر وضعیت
+            </a>
+        </span>
+    </validate-permission>
 </h5>
 <div class="row mb-2">
     <div class="col-6 text-muted">نوع:</div>

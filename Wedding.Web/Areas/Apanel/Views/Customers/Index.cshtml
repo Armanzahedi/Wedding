@@ -82,10 +82,17 @@
                                     content += element;
                                     </text>
                                 }
+                                if (await PermissionHelper.UserHasPermission("Customers", "Details"))
+                                {
+                                    <text>
+                                        var element = `<a class='btn btn-warning text-white btn-sm ml-2' href='/apanel/Wallets/Customer/${row.Id}?referrer=customer'>کیف پول</a>`;
+                                        content += element;
+                                    </text>
+                                }
                              }
                             return content;
                         },
-                        width:"100px",
+                        width:"180px",
                         orderable: false
                     },
 

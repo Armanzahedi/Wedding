@@ -97,4 +97,12 @@ namespace Wedding.Infrastructure.DTOs
         public int Id { get; set; }
         public int Limit { get; set; }
     }
+
+    public class UpgradeAdDto
+    {
+        public int Id { get; set; }
+        public DateTime FromDate { get; set; }
+        public DateTime ToDate { get; set; }
+        public long Price { get; set; }
+    }
 }

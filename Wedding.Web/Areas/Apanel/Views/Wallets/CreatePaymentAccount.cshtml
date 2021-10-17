@@ -1,0 +1,73 @@
+﻿@model Wedding.Core.Models.PaymentAccount
+<input type="hidden" id="title" value="ایجاد مشتری" />
+<form asp-action="Create" method="post" id="form">
+    <div class="form-group">
+        <label asp-for="CardNumber" class="control-label col-md-12">شماره کارت *</label>
+        <div class="col-md-12">
+            <input asp-for="CardNumber" class="form-control" />
+            <span asp-validation-for="CardNumber" class="text-danger"></span>
+            <span id="validate-card" style="display: none"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="Status" class="control-label"></label>
+        <div class="col-md-12">
+            <select asp-for="Status" class="form-control">
+                <option value="@(ApprovalStatus.Approved)" selected="@(PaymentAccountNumberStatus.Approved == Model.Status)">تایید شده</option>
+                <option value="@(ApprovalStatus.Pending)" selected="@(PaymentAccountNumberStatus.Pending == Model.Status)">در انتضار بررسی</option>
+                <option value="@(ApprovalStatus.Rejected)" selected="@(PaymentAccountNumberStatus.Rejected == Model.Status)">رد شده</option>
+            </select>
+            <span asp-validation-for="Status" class="text-danger"></span>
+        </div>
+    </div>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <div style="float:left">
+            <input type="submit" value="ثبت" class="btn btn-primary mr-2" />
+        </div>
+    </div>
+</form>
+<script>
+    function validateCard(card) {
+        if (typeof card === 'undefined'
+            || card === null
+            || card.length !== 16) {
+            return false;
+        }
+        var cardTotal = 0;
+        for (let i = 0; i < 16; i += 1) {
+            var c = Number(card[i]);
+            if (i % 2 === 0) {
+                cardTotal += ((c * 2 > 9) ? (c * 2) - 9 : (c * 2));
+            } else {
+                cardTotal += c;
+            }
+        }
+        return (cardTotal % 10 === 0);
+    }
+    $.validator.unobtrusive.parse("#form");
+    $('#form').submit(function (e) {
+        e.preventDefault();
+        if ($('#form').valid()) {
+            if (validateCard($("#CardNumber"))) {
+                $.ajax({
+                    type: 'POST',
+                    url: "/Apanel/Customers/CreatePaymentAccount",
+                    data: $(this).serialize(),
+                    dataType: 'json',   
+                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
+                }).done(function (response) {
+                    if (response === "success") {
+                        loadPaymentAccounts();
+                    } else {
+                        $("#validate-phone").text(response.error);
+                        $("#validate-phone").show();
+                    }
+                });
+            } else {
+                $("#validate-card").show();
+                $("#validate-card").innerText("شماره کارت وارد شده معتبر نیست");
+            }
+        }
+    });
+</script>

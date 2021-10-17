@@ -1,0 +1,128 @@
+﻿@model Wedding.Core.Models.Wallet
+@{
+    ViewBag.Title = "کیف پول مشتری";
+}
+@if (ViewBag.Referrer != null)
+{
+    if (ViewBag.Referrer == "customer")
+    {
+        <input type="hidden" id="nav_active" value="customers">
+        <input type="hidden" id="nav_item_active" value="customers">
+    }
+}
+else
+{
+    <input type="hidden" id="nav_active" value="dashboard">
+    <input type="hidden" id="nav_item_active" value="dashboard">
+}
+
+<div class="page-header">
+    <div>
+        <h3>@ViewData["Title"]</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                @if (ViewBag.Referrer != null)
+                {
+                    if (ViewBag.Referrer == "customer")
+                    {
+                        <li class="breadcrumb-item"><a asp-area="apanel" asp-controller="Home" asp-action="Index">داشبورد</a></li>
+                        <li class="breadcrumb-item"><a asp-area="apanel" asp-controller="Customers" asp-action="Index">مشتریان</a></li>
+                        <li class="breadcrumb-item active" aria-current="page"><a href="javascript:void(0)">@ViewData["Title"]</a></li>
+                    }
+                }
+                else
+                {
+                    <li class="breadcrumb-item"><a asp-area="apanel" asp-controller="Home" asp-action="Index">داشبورد</a></li>
+                    <li class="breadcrumb-item active" aria-current="page"><a href="javascript:void(0)">@ViewData["Title"]</a></li>
+                }
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-sm-start justify-content-between">
+                    <div>
+
+                        <h2>موجودی</h2>
+                        <h5>@Model.Balance.ToString("##,###") تومان</h5>
+                    </div>
+                    <div>
+                        <a onclick="openModal('/Apanel/Wallets/Withdraw/@Model.Id')" class="btn btn-primary text-white ml-2">
+                            <i class="fas fa-arrow-up ml-2"></i>برداشت
+                        </a>
+                        <a onclick="openModal('/Apanel/Wallets/Deposit/@Model.Id')" class="btn btn-primary text-white">
+                            <i class="fas fa-arrow-down ml-2"></i>واریز
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                @await Html.PartialAsync("_SpinnerPartial" ,"tansactionSpinner")
+                <div id="transaction-history"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title d-flex justify-content-between align-items-center m-b-50">
+                    حساب ها
+                    <span>
+                            <a onclick="openModal('@Url.Action("Create", "Ads", new { customerId = ViewBag.CustomerId, referer = "customer" })')" class="btn btn-sm primary-font text-success" style="cursor: pointer">
+                                <i class="ti-plus m-l-5"></i> افزودن حساب   
+                            </a>
+                    </span>
+                </h5>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">شماره کارت</th>
+                            <th scope="col">وضعیت</th>
+                            <th class="text-left" scope="col">حذف</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>5022291096222714</td>
+                            <td>تایید شده</td>
+                            <td class="text-left">
+                                <a class="text-danger">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: "@Url.Action("TransactionHistory","Wallets", new { Id = Model.Id })",
+                success: function (result) {
+                    $("#tansactionSpinner").hide();
+                    $("#transaction-history").html(result);
+                }
+            });
+            //$.ajax({
+            //    url: "@Url.Action("AdsGrid","Customers", new { Id = ViewBag.CustomerId })",
+            //    success: function (result) {
+            //        $("#adsSpinner").hide();
+            //        $("#ads-grid").html(result);
+            //    }
+            //});
+        });
+    </script>
+} 
