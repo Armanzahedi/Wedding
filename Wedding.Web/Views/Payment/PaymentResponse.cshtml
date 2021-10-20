@@ -1,0 +1,10 @@
+﻿@model bool
+@if (Model == true)
+{
+    <h2>پرداخت با موفقیت انجام شد</h2>
+    <h5>کد پیگیری: @ViewBag.PaymentId</h5>
+}
+else
+{
+    <h2>پرداخت ناموفق</h2>
+}

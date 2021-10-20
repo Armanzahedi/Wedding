@@ -13,5 +13,9 @@ namespace Wedding.Core.Models
         public DateTime CreateDate { get; set; }
         public WalletTransactionType TransactionType { get; set; }
         public WalletTransctionStatus TransactionStatus { get; set; }
+        public int? PaymentId { get; set; }
+        public Payment Payment { get; set; }
+        public int? WithdrawalRequestId { get; set; }
+        public WithdrawalRequest WithdrawalRequest { get; set; }
     }
 }

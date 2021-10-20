@@ -30,5 +30,7 @@ namespace Wedding.Web.Areas.Apanel.ViewModels
         public int? DisplayOrder { get; set; }
 
         public bool Visible { get; set; }
+        public bool HasBadge { get; set; } = false;
+        public int? BadgeNumber { get; set; }
     }
 }

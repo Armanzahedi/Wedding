@@ -20,11 +20,13 @@ using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using System.Threading.Tasks;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Wedding.Core.Models;
 using Wedding.Core.Utility;
 using Wedding.Infrastructure;
 using Wedding.Infrastructure.Context;
+using Wedding.Infrastructure.DTOs;
 using Wedding.Infrastructure.Helpers;
 using Wedding.Web.Helpers;
 
@@ -43,6 +45,7 @@ namespace Wedding.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
+            services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<WithdrawalDtoValidator>());
             // Email Settings
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
 

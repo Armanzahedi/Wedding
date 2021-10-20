@@ -13,15 +13,16 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                @if (Model == null || Model.Any() == false)
+            @if (Model == null || Model.Any() == false)
+            {
+                <span>هنوز هیچ داده ای ثبت نشده</span>
+            }
+            else
+            {
+                foreach (var item in Model)
                 {
-                    <span>هنوز هیچ داده ای ثبت نشده</span>
-                }
-                else
-                {
-                    foreach (var item in Model)
-                    {
+                    <tr>
+
                         <td>
                             @{
                                 switch (item.TransactionType)
@@ -44,7 +45,7 @@
                                 }
                             }
                         </td>
-                        <td>@item.Amount تومان</td>
+                        <td>@item.Amount.ToString("##,###") تومان</td>
                         <td>
                             @{
                                 switch (item.TransactionStatus)
@@ -62,9 +63,9 @@
                             }
                         </td>
                         <td>@(new PersianDateTime(item.CreateDate).ToPersianDigitalDateTimeString())</td>
-                    }
+                    </tr>
                 }
-            </tr>
+            }
         </tbody>
     </table>
 </div>

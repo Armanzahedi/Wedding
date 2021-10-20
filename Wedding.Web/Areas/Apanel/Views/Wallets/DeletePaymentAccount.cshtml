@@ -1,0 +1,45 @@
+﻿@model Wedding.Core.Models.PaymentAccount
+
+<input type="hidden" id="title" value="حذف حساب" />
+
+<h4 class="modal-label">
+    آیا مطمئن هستید که می خواهید این رکورد را حذف کنید؟
+</h4>
+<dl class="row" style="padding-top:10px">
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CardNumber)
+    </dt>
+    <dd class="col-sm-8">
+        @Html.DisplayFor(model => model.CardNumber)
+    </dd>
+</dl>
+<div style="float: left">
+    <form asp-action="DeletePaymentAccount" method="post" id="form">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id"/>
+        <input type="submit" value="حذف" class="btn btn-danger mr-2"/>
+    </form>
+</div>
+<script>
+    $.validator.unobtrusive.parse("#form");
+    $('#form').submit(function (e) {
+        e.preventDefault();
+        if ($('#form').valid()) {
+            $.ajax({
+                type: 'POST',   
+                url: "/Apanel/Wallets/DeletePaymentAccount",
+                data: $(this).serialize(),
+                dataType: 'json',   
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
+            }).done(function (response) {
+                if (response.status === "Success") {
+                    loadPaymentAccounts();
+                    $("#myModal").modal('hide');
+                    toastr.success(response.message, "تایید");
+                } else {
+                    toastr.error(response.message, "خطا");
+                }
+            });
+        }
+    });
+</script>

@@ -11,8 +11,11 @@ namespace Wedding.Core.Models
         public int CustomerId { get; set; }
         public Customer Customer { get; set; }
         [Display(Name = "شماره کارت")]
+        [Required(ErrorMessage = "لطفا {0} را وارد کنید")]
         public string CardNumber { get; set; }
         [Display(Name = "وضعیت")]
-        public PaymentAccountNumberStatus  Status { get; set; }
+        public PaymentAccountStatus  Status { get; set; }
+
+        public ICollection<WithdrawalRequest> WithdrawalRequests { get; set; }
     }
 }

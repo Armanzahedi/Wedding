@@ -1,0 +1,33 @@
+﻿@model DepositDto
+<input type="hidden" id="title" value="واریز به کیف پول" />
+<form asp-action="Deposit" method="post" id="form">
+    <input type="hidden" asp-for="WalletId"/>
+    <input type="hidden" asp-for="Referer"/>
+    <div class="form-group">
+        <label asp-for="Amount" class="control-label col-md-12">مقدار ( تومان ) *</label>
+        <div class="col-md-12">
+            <input asp-for="Amount" class="form-control" value="" oninput="formatValue()" autocomplete="off"/>
+            @*<small id="emailHelp" class="form-text text-muted">حداقل میزان واریز 1,000 تومان میباشد</small>*@
+            <div style="margin-right: 10px;display: none" id="ShowAmount"></div>
+            <span asp-validation-for="Amount" class="text-danger"></span></div>
+    </div>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group col-md-12">
+        <div style="float: left">
+            <input type="submit" value="ورود به درگاه بانکی" class="btn btn-primary mr-2"/>
+        </div>
+    </div>
+</form>
+<script>
+    $.validator.unobtrusive.parse("#form");
+    function formatValue(){
+        var x = Number(document.getElementById('Amount').value);
+        var showAmount = document.getElementById('ShowAmount');
+        if (x === 0) {
+            showAmount.style.display = "none";
+        } else {
+            showAmount.style.display = "block";
+            showAmount.innerHTML = x.toLocaleString() + " تومان ";
+        }
+    }
+</script>

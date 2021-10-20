@@ -87,6 +87,22 @@ namespace Wedding.Infrastructure.ExtensionMethods
             DateTime dt = new DateTime(Convert.ToInt32(PersianNumberToEnglish(dateArr[0])), Convert.ToInt32(PersianNumberToEnglish(dateArr[1])), Convert.ToInt32(PersianNumberToEnglish(dateArr[2])), pCalender);
             return dt;
         }
+
+        public static string ToPersianDate(this DateTime dt)
+        {
+            PersianCalendar pc = new PersianCalendar();
+            DateTime thisDate = DateTime.Now;
+
+            // Display the current date using the Gregorian and Persian calendars.
+            var persianDt = string.Format("{0}/{1}/{2} {3}:{4}:{5}\n",
+                pc.GetYear(thisDate),
+                pc.GetMonth(thisDate),
+                pc.GetDayOfMonth(thisDate),
+                pc.GetHour(thisDate),
+                pc.GetMinute(thisDate),
+                pc.GetSecond(thisDate));
+            return persianDt;
+        }
     }
 
 }

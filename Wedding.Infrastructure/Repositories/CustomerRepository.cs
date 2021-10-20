@@ -19,6 +19,7 @@ namespace Wedding.Infrastructure.Repositories
         Task<bool> CreateCustomer(CustomerCreateDto model);
         Task<bool> EditCustomer(CustomerEditDto model);
         Task<Customer> DeleteCustomer(int customerId);
+        Task<Customer> GeWithUser(int customerId);
     }
     public class CustomerRepository : BaseRepository<Customer>, ICustomerRepository
     {
@@ -158,6 +159,12 @@ namespace Wedding.Infrastructure.Repositories
             await _userRepo.DeleteUser(user.Id);
 
             return customer;
+        }
+
+        public async Task<Customer> GeWithUser(int customerId)
+        {
+            return await base.GetDefaultQuery().AsQueryable().Include(c => c.User)
+                .FirstOrDefaultAsync(c => c.Id == customerId);
         }
     }
 }

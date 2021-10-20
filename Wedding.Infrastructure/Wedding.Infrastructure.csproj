@@ -5,6 +5,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20211020095542_AddedWithdrawalRequest.cs" />
+    <Compile Remove="Migrations\20211020095542_AddedWithdrawalRequest.Designer.cs" />
+    <Compile Remove="Migrations\20211020095848_AddedWithdrawalRequest.cs" />
+    <Compile Remove="Migrations\20211020095848_AddedWithdrawalRequest.Designer.cs" />
+    <Compile Remove="Migrations\20211020100113_AddedWithdrawalRequest.cs" />
+    <Compile Remove="Migrations\20211020100113_AddedWithdrawalRequest.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="DatatablesParser-core" Version="1.5.0" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="10.3.3" />
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="8.3.2" />

@@ -5,29 +5,30 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Wedding.Core.Models;
+using Wedding.Core.Utility;
 using Wedding.Infrastructure.Context;
 
 namespace Wedding.Infrastructure.Repositories
 {
-    public interface IWalletTransactionRepository : IBaseRepository<WalletTransaction>
+    public interface IWithdrawalRequestRepository : IBaseRepository<WithdrawalRequest>
     {
-        Task<WalletTransaction> GetByPaymentId(int paymentId);
+        Task<int> GetRequestCount();
     }
-    public class WalletTransactionRepository : BaseRepository<WalletTransaction>, IWalletTransactionRepository
+    public class WithdrawalRequestRepository : BaseRepository<WithdrawalRequest>, IWithdrawalRequestRepository
     {
         private readonly MyDbContext _context;
         private readonly ILogRepository _logger;
 
-        public WalletTransactionRepository(MyDbContext context, ILogRepository logger) : base(context, logger)
+        public WithdrawalRequestRepository(MyDbContext context, ILogRepository logger) : base(context, logger)
         {
             _context = context;
             _logger = logger;
         }
 
-        public async Task<WalletTransaction> GetByPaymentId(int paymentId)
+        public async Task<int> GetRequestCount()
         {
             return await base.GetDefaultQuery().AsQueryable()
-                .FirstOrDefaultAsync(t => t.PaymentId == paymentId);
+                .CountAsync(w => w.Status == WithdrawalRequestStatus.Requested);
         }
     }
 }

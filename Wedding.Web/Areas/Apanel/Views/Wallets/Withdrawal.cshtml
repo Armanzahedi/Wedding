@@ -1,0 +1,84 @@
+﻿@using Wedding.Core.Models
+@model WithdrawalDto
+<input type="hidden" id="title" value="واریز به کیف پول" />
+<form asp-action="Withdrawal" method="post" id="form">
+    <input type="hidden" asp-for="WalletId"/>
+    <input type="hidden" asp-for="WalletBalance"/>
+    <div class="form-group">
+        <label asp-for="Amount" class="control-label col-md-12">مقدار ( تومان ) *</label>
+        <div class="col-md-12">
+            <input asp-for="Amount" class="form-control" value="" oninput="formatValue()" autocomplete="off"/>
+            <div style="margin-right: 10px;display: none" id="ShowAmount"></div>
+            <span asp-validation-for="Amount" class="text-danger col-md-12"></span></div>
+    </div>
+    <div class="form-group">
+        <label asp-for="PaymentAcountId" class="control-label col-md-12"></label>
+        <div class="col-md-12">
+            <select asp-for="PaymentAcountId" asp-items="@ViewData["PaymentAccounts"] as List<SelectListItem>" class="form-control">
+            </select>
+            <span asp-validation-for="PaymentAcountId" class="text-danger"></span>
+        </div>
+    </div>
+    @if (ViewBag.PaymentAccountIsEmpty)
+    {
+        <div class="text-danger col-md-12">شماره حسابی برای شما ثبت نشده</div>
+    }
+    <div asp-validation-summary="ModelOnly" class="text-danger col-md-12"></div>
+    <div class="form-group col-md-12">
+        <div style="float: left">
+            <input type="submit" value="ثبت درخواست برداشت" class="btn btn-primary mr-2" disabled="@ViewBag.PaymentAccountIsEmpty"/>
+        </div>
+    </div>
+</form>
+<script>
+    $.validator.unobtrusive.parse("#form");
+    function validateLimit() {
+        var amount = Number(document.getElementById('Amount').value);
+        var limit = Number(document.getElementById('WalletBalance').value);
+        var showAmount = document.getElementById('ShowAmount');
+        if (amount > limit) {
+            showAmount.style.display = "block";
+            showAmount.classList.add("text-danger");
+            showAmount.innerHTML = "موجودی ناکافی";
+            return false;
+        } else {
+            showAmount.style.display = "none";
+            showAmount.classList.remove("text-danger");
+            return true;
+        }
+    }
+    function formatValue(){
+        var x = Number(document.getElementById('Amount').value);
+        var showAmount = document.getElementById('ShowAmount');
+        if (validateLimit()) {
+            if (x === 0) {
+                showAmount.style.display = "none";
+            } else {
+                showAmount.style.display = "block";
+                showAmount.innerHTML = x.toLocaleString() + " تومان ";
+            }
+        }
+    }
+    $('#form').submit(function (e) {
+        e.preventDefault();
+        if ($('#form').valid()) {
+            if (validateLimit()) {
+                $.ajax({
+                    type: 'POST',   
+                    url: "/Apanel/Wallets/Withdrawal",
+                    data: $(this).serialize(),
+                    dataType: 'json',   
+                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
+                }).done(function (response) {
+                    if (response.status === "Success") {
+                        loadTransactionHistory();
+                        $("#myModal").modal('hide');
+                        toastr.success(response.message, "تایید");
+                    } else {
+                        toastr.error(response.message, "خطا");
+                    }
+                });
+            }
+        }
+    });
+</script>

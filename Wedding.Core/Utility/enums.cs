@@ -60,9 +60,30 @@ namespace Wedding.Core.Utility
         Processed = 2,
         Failed = 3
     }
-    public enum PaymentAccountNumberStatus {
+    public enum PaymentAccountStatus {
         Pending = 1,
         Approved = 2,
+        Rejected = 3
+    }
+
+    public enum PaymentType
+    {
+        WalletDeposit = 1,
+        AdPurchase = 2,
+        BannerPurchase = 3,
+        Reservation = 4
+    }
+    public enum PaymentStatus
+    {
+        Pending = 1,
+        Payed = 2,
+        Failed = 3,
+    }
+
+    public enum WithdrawalRequestStatus
+    {
+        Requested = 1,
+        Processed = 2,
         Rejected = 3
     }
 }

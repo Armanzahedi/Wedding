@@ -410,3 +410,11 @@ figure.avatar.avatar-xxl {
 body {
     font-size: 13px;
 }
+.side-menu > .side-menu-body > ul li a .badge, .side-menu > .container > .side-menu-body > ul li a .badge, .side-menu > .container-fluid > .side-menu-body > ul li a .badge {
+    text-indent: unset;
+    width: unset;
+    height: unset;
+    border-radius: .25rem;
+    padding: 5px 5px;
+    font-size: 0.5rem;
+}

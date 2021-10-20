@@ -38,6 +38,8 @@ namespace Wedding.Infrastructure.Context
         public DbSet<Wallet> Wallets { get; set; }
         public DbSet<WalletTransaction> WalletTransactions { get; set; }
         public DbSet<PaymentAccount> PaymentAccounts { get; set; }
+        public DbSet<Payment> Payments{ get; set; }
+        public DbSet<WithdrawalRequest> WithdrawalRequests { get; set; }
 
 
         #endregion
@@ -54,6 +56,19 @@ namespace Wedding.Infrastructure.Context
 
             modelBuilder.Entity<AdTag>()
             .HasKey(c => new { c.AdId, c.TagId });
+
+
+            //modelBuilder.Entity<WithdrawalRequest>()
+            //    .HasOne<WalletTransaction>(s => s.WalletTransaction)
+            //    .WithOne(ad => ad.WithdrawalRequest)
+            //    .HasForeignKey<WalletTransaction>(ad => ad.WithdrawalRequestId)
+            //    .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<WalletTransaction>()
+                .HasOne<WithdrawalRequest>(s => s.WithdrawalRequest)
+                .WithOne(ad => ad.WalletTransaction)
+                .HasForeignKey<WithdrawalRequest>(ad => ad.WalletTransactionId)
+                .OnDelete(DeleteBehavior.NoAction);
             modelBuilder.Seed();
             base.OnModelCreating(modelBuilder);
         }

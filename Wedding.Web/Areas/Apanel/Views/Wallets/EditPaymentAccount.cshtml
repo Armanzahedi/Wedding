@@ -1,13 +1,15 @@
 ﻿@model Wedding.Core.Models.PaymentAccount
-<input type="hidden" id="title" value="افزودن شماره حساب" />
-<form asp-action="CreatePaymentAccount" method="post" id="form">
+<input type="hidden" id="title" value="ویرایش شماره حساب" />
+<form asp-action="EditPaymentAccount" method="post" id="form">
+    <input type="hidden" asp-for="Id"/>
     <input type="hidden" asp-for="CustomerId"/>
+    <input type="hidden" asp-for="InsertDate"/>
+    <input type="hidden" asp-for="InsertUser"/>
     <div class="form-group">
         <label asp-for="CardNumber" class="control-label col-md-12">شماره کارت *</label>
         <div class="col-md-12">
-            <input asp-for="CardNumber" class="form-control"/>
+            <input asp-for="CardNumber" class="form-control" disabled="disabled"/>
             <span asp-validation-for="CardNumber" class="text-danger"></span>
-            <span id="validate-card" class="text-danger" style="display: none">شماره کارت وارد شده معتبر نیست</span>
         </div>
     </div>
     <div class="form-group">
@@ -29,40 +31,13 @@
     </div>
 </form>
 <script>
-    function checkCartDigit(code)
-    {
-        var L=code.length;
-        if(L != 16 || parseInt(code.substr(1,10),10)==0 || parseInt(code.substr(10,6),10)==0) return false;
-        var c=parseInt(code.substr(15,1),10);
-        var s=0;
-        var k,d;
-        for(var i=0;i<16;i++)
-        {
-            k=(i%2==0) ? 2 :1;
-            d=parseInt(code.substr(i,1),10)*k;
-            s+=(d >9) ? d-9 :d;
-        }  
-        return ((s%10)==0);
-    }
-    $("#CardNumber").on('input',function() {
-        if ($(this).val()) {
-            if (checkCartDigit($(this).val()) === false) {
-                $("#validate-card").show(); 
-            } else {
-                $("#validate-card").hide();
-            }
-        } else {
-                $("#validate-card").hide();
-        }
-    });
     $.validator.unobtrusive.parse("#form");
     $('#form').submit(function (e) {
         e.preventDefault();
         if ($('#form').valid()) {
-            if (checkCartDigit($("#CardNumber").val())) {
                 $.ajax({
                     type: 'POST',   
-                    url: "/Apanel/Wallets/CreatePaymentAccount",
+                    url: "/Apanel/Wallets/EditPaymentAccount",
                     data: $(this).serialize(),
                     dataType: 'json',   
                     contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
@@ -75,9 +50,6 @@
                         toastr.error(response.message, "خطا");
                     }
                 });
-            } else {
-                $("#validate-card").show();
-            }
         }
     });
 </script>

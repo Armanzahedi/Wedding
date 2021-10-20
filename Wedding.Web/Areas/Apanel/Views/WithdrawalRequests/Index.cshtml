@@ -1,25 +1,19 @@
-﻿
-@{
-    ViewData["Title"] = "مشتریان";
+﻿@{
+    ViewData["Title"] = "درخواست های برداشت";
 }
-<input type="hidden" id="nav_active" value="customers">
-<input type="hidden" id="nav_item_active" value="customers">
-
+<input type="hidden" id="nav_active" value="requests">
+<input type="hidden" id="nav_item_active" value="withdrawal_requests">
 <div class="page-header">
     <div>
         <h3>@ViewData["Title"]</h3>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a asp-area="apanel" asp-controller="Home" asp-action="Index">داشبورد</a></li>
+                <li class="breadcrumb-item"><a href="javascript:void(0)">درخواست ها</a></li>
                 <li class="breadcrumb-item active" aria-current="page"><a href="javascript:void(0)">@ViewData["Title"]</a></li>
             </ol>
         </nav>
     </div>
-    <validate-permission asp-controller="Customers" asp-action="Create">
-        <a onclick="openModal('/apanel/Customers/Create')" class="btn btn-success text-white font-weight-bolder">
-            رکورد جدید
-        </a>
-    </validate-permission>
 </div>
 <div class="card">
     <div class="card-body table-responsive">
@@ -27,9 +21,9 @@
             <thead>
                 <tr>
                     <th>Id</th>
-                    <th>نام و نام خانوادگی</th>
-                    <th>شماره مشتری</th>
-                    <th>شماره تلفن</th>
+                    <th>مشتری</th>
+                    <th>شماره کارت</th>
+                    <th>تاریخ ثبت</th>
                     <th>دستورات</th>
                 </tr>
             </thead>
@@ -47,7 +41,7 @@
             }
             var table = $('#datatable').DataTable({
                 ajax: {
-                    url: '/apanel/Customers/LoadGrid',
+                    url: '/apanel/WithdrawalRequests/LoadGrid',
                     type: "POST",
                 },
                 stateSave: true,
@@ -61,14 +55,14 @@
                 ],
                 columns: [
                     { data: "Id" },
-                    { data: "FullName" },
+                    { data: "Customer" },
                     {
-                        data: "CustomerNumber",
-                        width:"150px",
+                        data: "PaymentAccount",
+                        width:"180px"
                     },
                     {
-                        data: "PhoneNumber",
-                        width:"150px",
+                        data: "PersianDate",
+                        width:"210px"
                     },
                     {
                         data: "Id",
