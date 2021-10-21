@@ -23,6 +23,7 @@
                     <th>Id</th>
                     <th>مشتری</th>
                     <th>شماره کارت</th>
+                    <th>مبلغ</th>
                     <th>تاریخ ثبت</th>
                     <th>دستورات</th>
                 </tr>
@@ -61,6 +62,10 @@
                         width:"180px"
                     },
                     {
+                        data: "Amount",
+                        width:"180px"
+                    },
+                    {
                         data: "PersianDate",
                         width:"210px"
                     },
@@ -72,21 +77,21 @@
                                 if (await PermissionHelper.UserHasPermission("Customers", "Details"))
                                 {
                                     <text>
-                                    var element = `<a class='btn btn-dark text-white btn-sm ml-2' href='/apanel/Customers/Details/${row.Id}'>جزئیات</a>`;
+                                    var element = `<a class='btn btn-danger text-white btn-sm ml-2' href='/apanel/Customers/Details/${row.Id}'>رد درخواست</a>`;
                                     content += element;
                                     </text>
                                 }
                                 if (await PermissionHelper.UserHasPermission("Customers", "Details"))
                                 {
                                     <text>
-                                        var element = `<a class='btn btn-warning text-white btn-sm ml-2' href='/apanel/Wallets/Customer/${row.Id}?referer=customer'>کیف پول</a>`;
+                                        var element = `<a class='btn btn-success text-white btn-sm ml-2' href='/apanel/Wallets/Customer/${row.Id}?referer=customer'>پرداخت شد</a>`;
                                         content += element;
                                     </text>
                                 }
                              }
                             return content;
                         },
-                        width:"180px",
+                        width:"215px",
                         orderable: false
                     },
 

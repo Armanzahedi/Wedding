@@ -95,12 +95,12 @@ namespace Wedding.Infrastructure.ExtensionMethods
 
             // Display the current date using the Gregorian and Persian calendars.
             var persianDt = string.Format("{0}/{1}/{2} {3}:{4}:{5}\n",
-                pc.GetYear(thisDate),
-                pc.GetMonth(thisDate),
-                pc.GetDayOfMonth(thisDate),
-                pc.GetHour(thisDate),
-                pc.GetMinute(thisDate),
-                pc.GetSecond(thisDate));
+                pc.GetYear(dt),
+                pc.GetMonth(dt),
+                pc.GetDayOfMonth(dt),
+                pc.GetHour(dt),
+                pc.GetMinute(dt),
+                pc.GetSecond(dt));
             return persianDt;
         }
     }

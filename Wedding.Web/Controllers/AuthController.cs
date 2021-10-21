@@ -8,10 +8,16 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Wedding.Infrastructure.ExtensionMethods;
+using Wedding.Infrastructure.Helpers;
+using Wedding.Infrastructure.Repositories;
 
 namespace Wedding.Web.Controllers
 {
@@ -21,12 +27,14 @@ namespace Wedding.Web.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly ILogger<AuthController> _logger;
         private readonly IEmailSender _emailSender;
-        public AuthController(SignInManager<User> signInManager, UserManager<User> userManager, ILogger<AuthController> logger, IEmailSender emailSender)
+        private readonly IUserRepository _userRepo;
+        public AuthController(SignInManager<User> signInManager, UserManager<User> userManager, ILogger<AuthController> logger, IEmailSender emailSender, IUserRepository userRepo)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _logger = logger;
             _emailSender = emailSender;
+            _userRepo = userRepo;
         }
         public async Task<IActionResult> Login(string returnUrl = null)
         {
@@ -72,7 +80,77 @@ namespace Wedding.Web.Controllers
 
             return View();
         }
+        public async Task<IActionResult> SmsLogin(string returnUrl = null)
+        {
+            ViewBag.ReturnUrl = returnUrl ?? Url.Content("~/apanel");
+            //await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
+            return View();
+        }
+        [HttpPost]
+        public async Task<JsonResult> GenerateVerificationCode(string phoneNumber)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { Status = "invalid", Message = "اطلاعات وارد شده صحیح نیست" });
+            }
+            var validatePhone = await _userRepo.GetDefaultQuery().AsQueryable().AnyAsync(u => u.PhoneNumber == phoneNumber);
+            if (validatePhone == false)
+            {
+                return Json(new { Status = "invalid", Message = "کاربری با این شماره تلفن در سیستم ثبت نشده" });
+
+            }
+
+            // can send request every one minute
+            if (HttpContext.Session.GetString("VerificationCodeGenerateDate") == null || DateTime.Parse(HttpContext.Session.GetString("VerificationCodeGenerateDate")).AddMinutes(1) <= DateTime.Now)
+            {
+                try
+                {
+                    var verificationCode = GenerateRandom6DigitNumber();
+                    var message = $"ازدواج ایرانی " +
+                                  $"کد تایید: {verificationCode}";
+                    var result = await SmsHelper.SendSms(phoneNumber, message);
+                    if (result.Status != 100)
+                    {
+                        return Json(new { Status = "invalid", Message = "ارسال پیام با خطا مواجه شد" });
+                    }
+                    HttpContext.Session.SetString("VerificationCodeGenerateDate", DateTime.Now.ToString(CultureInfo.InvariantCulture));
+                    HttpContext.Session.SetString("VerificationCode", verificationCode);
+                }
+                catch (Exception e)
+                {
+                    return Json(new { Status = "invalid", Message = "ارسال پیام با خطا مواجه شد" });
+                }
+
+            }
+            return Json(new { Status = "Success" });
+        }
+
+        public string GenerateRandom6DigitNumber()
+        {
+            Random generator = new Random();
+            String r = generator.Next(0, 1000000).ToString("D6");
+            return r;
+        }
+        [HttpPost]
+        public async Task<JsonResult> SmsLogin(SmsLoginViewModel model)
+        {
+            var generatedCode = HttpContext.Session.GetString("VerificationCode");
+            var validateVerificationCode = generatedCode == model.VerificationCode;
+            if (validateVerificationCode)
+            {
+                var user = await _userRepo.GetDefaultQuery().AsQueryable().FirstOrDefaultAsync(u => u.PhoneNumber == model.PhoneNumber);
+                var authProps = new AuthenticationProperties();
+                await _signInManager.SignInAsync(user, authProps);
+
+                return Json(new { Status = "Success", ReturnUrl = model.ReturnUrl });
+            }
+            else
+            {
+                return Json(new { Status = "invalid", Message = "کد وارد شده معتبر نیست" });
+            }
+
+        }
         public IActionResult ForgotPassword()
         {
             return View();

@@ -13,6 +13,6 @@ namespace Wedding.Core.Models
         public PaymentAccount PaymentAccount { get; set; }
         public WithdrawalRequestStatus Status { get; set; }
         public DateTime RequestDate { get; set; }
-        public DateTime ProcessDate { get; set; }
+        public DateTime? ProcessDate { get; set; }
     }
 }

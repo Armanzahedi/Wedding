@@ -41,6 +41,7 @@ namespace Wedding.Infrastructure.DTOs
     {
         public int Id { get; set; }
         public string Customer { get; set; }
+        public string Amount { get; set; }
         public string PaymentAccount { get; set; }
         public string PersianDate { get; set; }
     }

@@ -1,0 +1,175 @@
+﻿@model SmsLoginViewModel
+@{
+    Layout = "/Views/Shared/_AuthLayout.cshtml";
+}
+
+<div id="phone-number">
+    <p>لطفا شماره تلفن خود را وارد کنید</p>
+    <form asp-action="GenerateVerificationCode" method="post" id="phoneForm">
+        <input type="hidden" asp-for="ReturnUrl" value="@ViewBag.ReturnUrl"/>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group mb-4">
+            <input type="text" class="form-control form-control-lg" asp-for="PhoneNumber" autocomplete="off" autofocus placeholder="09xx-xxx-xxxx">
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+        <div id="error" class="text-danger" style="display: none"></div>
+        <button type="submit" id="submit-btn" class="btn btn-primary btn-lg btn-block btn-uppercase mb-4">
+            تایید و ادامه
+            <span id="submit-spinner" style="display: none" class="spinner-border spinner-border-sm m-r-5" role="status" aria-hidden="true"></span>
+        </button>
+        <a asp-action="Login" class="text-primary align-items-center d-flex">
+            <i class="ti-arrow-right ml-2"></i>
+            بازگشت
+        </a>
+    </form>
+</div>
+<div id="verification-code" style="display: none">
+    <p>لطفا کد تایید 6 رقمی پیامک شده را وارد کنید</p>
+    <form asp-action="SmsLogin" method="post" id="verificationForm">
+        <input type="hidden" asp-for="ReturnUrl" value="@ViewBag.ReturnUrl"/>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="otp-input">
+            <input class="otp" type="text" maxlength="1" >
+            <input class="otp" type="text" maxlength="1" >
+            <input class="otp" type="text" maxlength="1" >
+            <input class="otp" type="text" maxlength="1" >
+            <input class="otp" type="text" maxlength="1" >
+            <input class="otp" type="text" maxlength="1" >
+        </div>
+        <div class="d-flex justify-content-center mb-2">
+            <span id="ver-spinner" class="spinner-border spinner-border-sm m-auto"  style="display: none"></span>
+        </div>
+        <div id="error2" class="text-danger" style="display: none"></div>
+        <div class="d-flex justify-content-between">
+            <a onclick="changePhone()" href="javascript:void(0)" class="text-primary align-items-center d-flex">
+                <i class="ti-arrow-right ml-2"></i>
+                تغییر شماره تلفن
+            </a>
+        </div>
+
+    </form>
+</div>
+<style>
+    .otp-input {
+        margin-bottom: 20px;
+        display: flex;
+        direction: ltr;
+        justify-content: space-between;
+    }
+    .otp {
+        display:inline-block;
+        width: 35px;
+        height: 35px;
+        border: 1px solid #c7c7c7;
+        border-radius: 5px;
+        text-align:center;
+    }
+</style>
+@section Scripts {
+    <script>
+        $('#phoneForm').submit(function(e) {
+            e.preventDefault();
+
+            if ($('#phoneForm').valid()) {
+                $("#submit-btn").prop('disabled', true);
+                $("#submit-spinner").show();
+                $.ajax({
+                    type: 'POST',
+                    url: "/Auth/GenerateVerificationCode?phoneNumber=" + $("#PhoneNumber").val(),
+                    dataType: 'json',
+                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                }).done(function(response) {
+                    $("#submit-btn").prop('disabled', false);
+                    $("#submit-spinner").hide();
+                    if (response.status == "Success") {
+                        $("#phone-number").hide();
+                        $("#verification-code").show();
+                    } else {
+                        $("#error").show();
+                        $("#error").text(response.message);
+                    }
+                });
+            }
+        });
+
+
+        function getVerficationInput() {
+            var verificationCodeArr = [];
+            var otpInputs = $(".otp");
+            otpInputs.each(function(index) {
+                verificationCodeArr.push($(this).val());
+            });
+            var verificationCode = verificationCodeArr.join('');
+            return verificationCode;
+        }
+
+        function submitVerification() {
+            if ($('#verificationForm').valid()) {
+                $("#ver-spinner").show();
+                var model = {
+                    ReturnUrl: $("#ReturnUrl").val(),
+                    PhoneNumber: $("#PhoneNumber").val(),
+                    VerificationCode: getVerficationInput(),
+                    RememberMe: $("#RememberMe").val()
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: "/Auth/SmsLogin",
+                    data: model,
+                    dataType: 'json',   
+                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',  
+                }).done(function (response) {
+                    $("#submit-btn").prop('disabled', false);
+                    $("#ver-spinner").hide();
+                    if (response.status == "Success") {
+                        location.href = response.returnUrl;
+                    } else {
+                        console.log(response);
+                        $("#error2").show();
+                        $("#error2").text(response.message);
+                    }
+                });
+            }
+        }
+
+        $(document).ready(function() {
+
+            var otpInputs = $(".otp");
+            otpInputs.on("input",
+                function(e) {
+
+                    // set what happens after input is full
+                    var onFinish = function() {
+                        return submitVerification();
+                    };
+
+                    var ele = $(this);
+                    var index = ele.index();
+
+                    if ($.isNumeric(ele.val())) {
+
+                        // if is not the last element
+                        if (index < 5) {
+                            otpInputs.eq(index + 1).focus();
+                        } else {
+                            onFinish();
+                        }
+                    } else {
+                        ele.val("");
+                        if (index > 0) {
+                            otpInputs.eq(index - 1).focus();
+                        }
+                    }
+                });
+        });
+
+        function changePhone() {
+            $("#phone-number").show();
+            $("#verification-code").hide();
+            var otpInputs = $(".otp");
+            otpInputs.each(function() {
+                $(this).val("");
+            });
+        }
+    </script>
+}

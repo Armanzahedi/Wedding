@@ -16,6 +16,7 @@
   <ItemGroup>
     <PackageReference Include="DatatablesParser-core" Version="1.5.0" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="10.3.3" />
+    <PackageReference Include="KavenegarDotNetCore" Version="1.0.3" />
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="8.3.2" />
     <PackageReference Include="Magick.NET.Core" Version="8.3.2" />
     <PackageReference Include="MailKit" Version="2.15.0" />
@@ -28,6 +29,7 @@
     </PackageReference>
     <PackageReference Include="MimeKit" Version="2.15.0" />
     <PackageReference Include="PersianDateTime.Core" Version="1.0.8" />
+    <PackageReference Include="SmsIrRestfulNetCore" Version="1.1.4" />
     <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
   </ItemGroup>
 

@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using DataTablesParser;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,21 +31,6 @@ namespace Wedding.Web.Areas.Apanel.Controllers
         [Authorize("Index")]
         public string LoadGrid()
         {
-            //var query = from item in _withdrawalRequestRepo.GetDefaultQuery()
-            //        .AsQueryable()
-            //        .Include(w => w.PaymentAccount)
-            //        .Include(w => w.WalletTransaction)
-            //        .ThenInclude(t=>t.Wallet)
-            //        .ThenInclude(w=>w.Customer)
-            //    let customerName = item.WalletTransaction.Wallet.Customer.Id.ToString()
-            //    let persianDate = new PersianDateTime(item.RequestDate).ToPersianDigitalDateTimeString()
-            //    select new WithdrawalRequestGridDto()
-            //    {
-            //        Id = item.Id,
-            //        Customer = customerName,
-            //        PaymentAccount = item.PaymentAccount.CardNumber,
-            //        PersianDate = persianDate
-            //    };
             var query =  _withdrawalRequestRepo.GetDefaultQuery()
                 .AsQueryable()
                 .Include(w => w.PaymentAccount)
@@ -54,6 +40,7 @@ namespace Wedding.Web.Areas.Apanel.Controllers
                     Id = item.Id,
                     Customer = $"{item.WalletTransaction.Wallet.Customer.User.FirstName} {item.WalletTransaction.Wallet.Customer.User.LastName} - {item.WalletTransaction.Wallet.Customer.User.PhoneNumber}",
                     PaymentAccount = item.PaymentAccount.CardNumber,
+                    Amount = $"{item.WalletTransaction.Amount.ToString("##,###")} تومان",
                     PersianDate = item.RequestDate.ToPersianDate()
                 })
                 .ToList();

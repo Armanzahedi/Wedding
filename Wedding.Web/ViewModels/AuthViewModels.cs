@@ -21,7 +21,18 @@ namespace Wedding.Web.ViewModels
         public bool RememberMe { get; set; }
         public string ReturnUrl { get; set; }
     }
+    public class SmsLoginViewModel
+    {
+        [Display(Name = "شماره تلفن")]
+        [Required(ErrorMessage = "لطفا {0} خود را وارد کنید")]
+        [RegularExpression("^0[0-9]{2,}[0-9]{7,}$", ErrorMessage = "{0} وارد شده معتبر نیست")]
+        public string PhoneNumber { get; set; }
 
+        public string VerificationCode { get; set; }
+
+        [Display(Name = "مرا به خاطر بسپار")]
+        public string ReturnUrl { get; set; }
+    }
     public class ResetPasswordViewModel
     {
         [Display(Name = "ایمیل")]

@@ -45,7 +45,7 @@ namespace Wedding.Web.Areas.Apanel.Controllers
             return View(model);
         }
         [HttpPost]
-        [AllowAnonymous]
+        [Authorize("Index")]
         public string LoadGrid(AdFilterViewModel model)
         {
 

@@ -24,14 +24,20 @@ namespace Wedding.Web.Areas.Apanel.Components
 			var items = await _rolePermissionService.GetMenuItemsAsync(HttpContext.User);
             var requestItem = items.FirstOrDefault(i => i.ElementIdentifier == "requests");
             var withdrawalRequestItem = items.FirstOrDefault(i => i.ElementIdentifier == "withdrawal_requests");
-
-            var withdrawalRequestCount = await _withdrawalRequestRepo.GetRequestCount();
-            if (withdrawalRequestCount > 0)
+            if (requestItem != null)
             {
-                requestItem.HasBadge = true;
-                withdrawalRequestItem.HasBadge = true;
-                withdrawalRequestItem.BadgeNumber = withdrawalRequestCount;
+                if (withdrawalRequestItem != null)
+                {
+                    var withdrawalRequestCount = await _withdrawalRequestRepo.GetRequestCount();
+                    if (withdrawalRequestCount > 0)
+                    {
+                        requestItem.HasBadge = true;
+                        withdrawalRequestItem.HasBadge = true;
+                        withdrawalRequestItem.BadgeNumber = withdrawalRequestCount;
+                    }
+                }
             }
+
 
 			return View(items);
 		}
