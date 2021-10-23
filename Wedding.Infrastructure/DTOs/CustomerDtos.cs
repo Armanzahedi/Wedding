@@ -30,6 +30,7 @@ namespace Wedding.Infrastructure.DTOs
     {
         public int Id { get; set; }
         public string Image { get; set; }
+        public string UserName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string PhoneNumber { get; set; }
@@ -56,6 +57,9 @@ namespace Wedding.Infrastructure.DTOs
         [Display(Name = "ایمیل")]
         [EmailAddress(ErrorMessage = "{0} وارد شده نامعطبر است")]
         public string Email { get; set; }
+        [Display(Name = "نام کاربری")]
+        [Required(ErrorMessage = "لطفا {0} را وارد کنید")]
+        public string UserName { get; set; }
         [Display(Name = "نام مجموعه")]
         [Required(ErrorMessage = "لطفا {0} را وارد کنید")]
         public string JobTitle { get; set; }

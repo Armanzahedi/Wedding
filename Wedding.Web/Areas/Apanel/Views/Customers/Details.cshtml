@@ -33,45 +33,48 @@
 </div>
 @section scripts {
     <script>
-    $(document).ready(function () {
-        $.ajax({
-            url: "@Url.Action("CustomerInfo","Customers", new { Id = ViewBag.CustomerId })",
-            success: function (result) {
-                $("#customerSpinner").hide();
-                $("#customer-details").html(result);
-            }
+        function loadCustomers() {
+            $.ajax({
+                url: "@Url.Action("CustomerInfo","Customers", new { Id = ViewBag.CustomerId })",
+                success: function (result) {
+                    $("#customerSpinner").hide();
+                    $("#customer-details").html(result);
+                }
+            });
+        }
+        $(document).ready(function () {
+            loadCustomers();
+            $.ajax({
+                url: "@Url.Action("AdsGrid","Customers", new { Id = ViewBag.CustomerId })",
+                success: function (result) {
+                    $("#adsSpinner").hide();
+                    $("#ads-grid").html(result);
+                }
+            });
         });
-        $.ajax({
-            url: "@Url.Action("AdsGrid","Customers", new { Id = ViewBag.CustomerId })",
-            success: function (result) {
-                $("#adsSpinner").hide();
-                $("#ads-grid").html(result);
-            }
-        });
-    });
         function btnEditCustomer() {
             $("#customer-details").hide();
             $("#customerSpinner").show();
             $.ajax({
-            url: "@Url.Action("Edit","Customers", new { Id = ViewBag.CustomerId })",
+                url: "@Url.Action("Edit","Customers", new { Id = ViewBag.CustomerId })",
                 success: function (result) {
-                $("#customerSpinner").hide();
-                $("#customer-details").show();
-                $("#customer-details").html(result);
-            }
-        });
+                    $("#customerSpinner").hide();
+                    $("#customer-details").show();
+                    $("#customer-details").html(result);
+                }
+            });
         }
         function btnCancel() {
             $("#customer-details").hide();
             $("#customerSpinner").show();
             $.ajax({
-            url: "@Url.Action("CustomerInfo","Customers", new { Id = ViewBag.CustomerId })",
+                url: "@Url.Action("CustomerInfo","Customers", new { Id = ViewBag.CustomerId })",
                 success: function (result) {
-                $("#customerSpinner").hide();
-                $("#customer-details").show();
-                $("#customer-details").html(result);
-            }
-        });
+                    $("#customerSpinner").hide();
+                    $("#customer-details").show();
+                    $("#customer-details").html(result);
+                }
+            });
         }
 
     </script>

@@ -50,6 +50,7 @@ namespace Wedding.Infrastructure.Repositories
             {
                 Id = c.Id,
                 FirstName = c.User.FirstName,
+                UserName = c.User.UserName,
                 LastName = c.User.LastName,
                 Image = c.User.Avatar ?? "user-avatar.png",
                 PhoneNumber = c.User.PhoneNumber,
@@ -69,6 +70,7 @@ namespace Wedding.Infrastructure.Repositories
             {
                 Id = c.Id,
                 UserId = c.User.Id,
+                UserName = c.User.UserName,
                 FirstName = c.User.FirstName,
                 LastName = c.User.LastName,
                 Image = c.User.Avatar,
@@ -137,7 +139,7 @@ namespace Wedding.Infrastructure.Repositories
                 user.FirstName = model.FirstName;
                 user.LastName = model.LastName;
                 user.PhoneNumber = model.PhoneNumber;
-                user.UserName = model.PhoneNumber;
+                user.UserName = model.UserName;
                 user.Email = model.Email;
                 user.Avatar = model.Image;
                 await _userRepo.UpdateUser(user);

@@ -1,0 +1,36 @@
+﻿@model WithdrawalRequestDto
+<input type="hidden" id="title" value="رد درخواست برداشت" />
+
+<dl class="row" style="padding-top:10px">
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Customer)
+    </dt>
+    <dd class="col-sm-8">
+        @Html.DisplayFor(model => model.Customer)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.PaymentAccount)
+    </dt>
+    <dd class="col-sm-8">
+        @Html.DisplayFor(model => model.PaymentAccount)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Amount)
+    </dt>
+    <dd class="col-sm-8">
+        @Html.DisplayFor(model => model.Amount)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.PersianDate)
+    </dt>
+    <dd class="col-sm-8">
+        @Html.DisplayFor(model => model.PersianDate)
+    </dd>
+</dl>
+<div>
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <input type="submit" value="رد درخواست" class="btn btn-danger btn-block" />
+    }
+</div>

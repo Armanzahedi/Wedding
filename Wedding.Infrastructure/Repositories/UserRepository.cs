@@ -21,6 +21,7 @@ namespace Wedding.Infrastructure.Repositories
         Task<User> UpdateUser(User model);
         Task<IdentityResult> Remove(string id);
         Task<bool> UserNameExists(string username, string id = null);
+        Task<bool> phoneNumberExists(string phone, string id = null);
         Task<bool> EmailExists(string email, string id = null);
         Task<User> UploadUserImage(string id, IFormFile file);
         Task<User> GetUserByUserName(string userName);
@@ -31,7 +32,7 @@ namespace Wedding.Infrastructure.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly MyDbContext _context;
-        public readonly UserManager<User> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ISystemParameterRepository _systemParameterRepo;
         public UserRepository( MyDbContext context,
@@ -87,6 +88,21 @@ namespace Wedding.Infrastructure.Repositories
                     if (user.Id != id)
                         return true;
                 }
+            }
+
+            return false;
+        }
+
+        public async Task<bool> phoneNumberExists(string phone, string id = null)
+        {
+            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u=>u.IsDeleted == false && u.PhoneNumber == phone);
+            if (user != null && user.IsDeleted == false)
+            {
+                if (string.IsNullOrEmpty(id))
+                    return true;
+
+                if (user.Id != id)
+                    return true;
             }
 
             return false;

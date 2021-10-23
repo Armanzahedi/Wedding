@@ -40,32 +40,38 @@
         <div class="offset-xl-3"></div>
         <div class="col-xl-5 col-md-7">
             <div class="row mb-2">
+                <div class="col-4 text-muted">نام کاربری *:</div>
+                <div class="col-8">
+                    <input asp-for="UserName" class="form-control" />
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-2">
                 <div class="col-4 text-muted">نام:</div>
                 <div class="col-8">
-                    <input asp-for="FirstName" class="form-control" />
+                    <input asp-for="FirstName" class="form-control"/>
                     <span asp-validation-for="LastName" class="text-danger"></span>
                 </div>
             </div>
             <div class="row mb-2">
                 <div class="col-4 text-muted">نام خانوادگی:</div>
                 <div class="col-8">
-                    <input asp-for="LastName" class="form-control" />
+                    <input asp-for="LastName" class="form-control"/>
                     <span asp-validation-for="LastName" class="text-danger"></span>
                 </div>
             </div>
             <div class="row mb-2">
                 <div class="col-4 text-muted">نام مجموعه *:</div>
                 <div class="col-8">
-                    <input asp-for="JobTitle" class="form-control" />
+                    <input asp-for="JobTitle" class="form-control"/>
                     <span asp-validation-for="JobTitle" class="text-danger"></span>
                 </div>
             </div>
             <div class="row mb-2">
                 <div class="col-4 text-muted">شماره همراه *:</div>
                 <div class="col-8">
-                    <input asp-for="PhoneNumber" class="form-control" />
+                    <input asp-for="PhoneNumber" class="form-control"/>
                     <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-                    <span id="validate-phone" class="text-danger" style="display:none"></span>
                 </div>
             </div>
             <div class="row mb-2">
@@ -90,14 +96,14 @@
             <div class="row mb-2">
                 <div class="col-4 text-muted">آدرس:</div>
                 <div class="col-8">
-                    <input asp-for="Address" class="form-control" />
+                    <input asp-for="Address" class="form-control"/>
                     <span asp-validation-for="Address" class="text-danger"></span>
                 </div>
             </div>
             <div class="row mb-2">
                 <div class="col-4 text-muted">ایمیل:</div>
                 <div class="col-8">
-                    <input asp-for="Email" class="form-control" />
+                    <input asp-for="Email" class="form-control"/>
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
             </div>
@@ -126,19 +132,39 @@
     $('#customerform').submit(function (e) {
         e.preventDefault();
         if ($(this).valid()) {
-            $.ajax({
-                type: 'GET',
-                url: "/Apanel/Customers/ValidatePhone?phone=" + $("#PhoneNumber").val() + "&id=" + $("#UserId").val(),
-                processData: false,
-                contentType: false,
-            }).done(function (response) {
-                if (response === "success") {
-                    $('#customerform').unbind('submit').submit();
-                } else {
-                    $("#validate-phone").text("کاربر دیگری با این شماره در سیستم ثبت شده");
-                    $("#validate-phone").show();
-                }
-            });
+                $.ajax({
+                    type: 'POST',   
+                    url: "/Apanel/Customers/Edit",
+                    data: $(this).serialize(),
+                    dataType: 'json',   
+                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
+                }).done(function (response) {
+                    if (response.status === "Success") {
+                        loadCustomers();
+                        $("#myModal").modal('hide');
+                        toastr.success(response.message, "تایید");
+                    } else {
+                        toastr.error(response.message, "خطا");
+                    }
+                });
         }
     });
+    //$('#customerform').submit(function (e) {
+    //    e.preventDefault();
+    //    if ($(this).valid()) {
+    //        $.ajax({
+    //            type: 'GET',
+    //            url: "/Apanel/Customers/ValidatePhone?phone=" + $("#PhoneNumber").val() + "&id=" + $("#UserId").val(),
+    //            processData: false,
+    //            contentType: false,
+    //        }).done(function (response) {
+    //            if (response === "success") {
+    //                $('#customerform').unbind('submit').submit();
+    //            } else {
+    //                $("#validate-phone").text("کاربر دیگری با این شماره در سیستم ثبت شده");
+    //                $("#validate-phone").show();
+    //            }
+    //        });
+    //    }
+    //});
 </script>

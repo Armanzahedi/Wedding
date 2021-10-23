@@ -33,8 +33,8 @@
                                     case WalletTransactionType.Withdraw:
                                         <span>برداشت وجه</span>
                                         break;
-                                    case WalletTransactionType.Charge:
-                                        <span>شارژ کیف پول</span>
+                                    case WalletTransactionType.Reservation:
+                                        <span>رزرو</span>
                                         break;
                                     case WalletTransactionType.Payment:
                                         <span>پرداخت</span>
@@ -45,7 +45,16 @@
                                 }
                             }
                         </td>
-                        <td>@item.Amount.ToString("##,###") تومان</td>
+                        <td>@{
+                                if (item.TransactionType == WalletTransactionType.Withdraw || item.TransactionType == WalletTransactionType.Payment)
+                                {
+                                <text>-</text>
+                                }
+                                else
+                                {
+                                 <text>+</text>
+                                }
+                            } @item.Amount.ToString("##,###") تومان</td>
                         <td>
                             @{
                                 switch (item.TransactionStatus)

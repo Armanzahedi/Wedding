@@ -37,12 +37,16 @@ namespace Wedding.Infrastructure.DTOs
         }
     }
 
-    public class WithdrawalRequestGridDto
+    public class WithdrawalRequestDto
     {
         public int Id { get; set; }
+        [Display(Name = "مشتری")]
         public string Customer { get; set; }
+        [Display(Name = "مبلغ")]
         public string Amount { get; set; }
+        [Display(Name = "شماره حساب")]
         public string PaymentAccount { get; set; }
+        [Display(Name = "تاریخ ثبت")]
         public string PersianDate { get; set; }
     }
 }

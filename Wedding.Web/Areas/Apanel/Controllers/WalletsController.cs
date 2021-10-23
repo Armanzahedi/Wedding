@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,6 +8,8 @@ using System.Web;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Wedding.Core.Models;
 using Wedding.Core.Utility;
 using Wedding.Infrastructure.DTOs;
@@ -98,28 +101,28 @@ namespace Wedding.Web.Areas.Apanel.Controllers
             return Json(new { Status = "Success", Message = "تغییرات با موفقیت ذخیره شد" });
         }
 
-        public IActionResult Deposit(int walletId)
-        {
-            string referer = Request.Headers["Referer"].ToString();
-            var model = new DepositDto { WalletId = walletId, Referer = Request.Headers["Referer"].ToString() };
-            return PartialView(model);
-        }
-        [HttpPost]
-        public async Task<IActionResult> Deposit(DepositDto model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return PartialView();
-            }
+        //public IActionResult Deposit(int walletId)
+        //{
+        //    string referer = Request.Headers["Referer"].ToString();
+        //    var model = new DepositDto { WalletId = walletId, Referer = Request.Headers["Referer"].ToString() };
+        //    return PartialView(model);
+        //}
+        //[HttpPost]
+        //public async Task<IActionResult> Deposit(DepositDto model)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return PartialView();
+        //    }
 
-            var payment = await _walletRepo.SubmitDeposit(model);
-            return RedirectToAction("PaymentRequest", "Payment", new
-            {
-                area = "",
-                id = payment.Id,
-                referer = model.Referer
-            });
-        }
+        //    var payment = await _walletRepo.SubmitDeposit(model);
+        //    return RedirectToAction("PaymentRequest", "Payment", new
+        //    {
+        //        area = "",
+        //        id = payment.Id,
+        //        referer = model.Referer
+        //    });
+        //}
         public async Task<IActionResult> Withdrawal(int walletId)
         {
             var wallet = await _walletRepo.GetById(walletId);
@@ -139,9 +142,25 @@ namespace Wedding.Web.Areas.Apanel.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Json(new { Status = "Invalid", Message = "درخواست برداشت با خطا مواجه شد" });
+                return Json(new { Status = "Invalid", Message = "اطلاعات وارد شده صحیح نیست" });
             }
 
+            var pendingRequests = await _withdrawalRequestRepo.GetDefaultQuery()
+                .AsQueryable()
+                .Include(r=>r.WalletTransaction)
+                .Where(r => r.WalletTransaction.WalletId == model.WalletId && r.Status == WithdrawalRequestStatus.Requested)
+                .ToListAsync();
+            if (pendingRequests.Any())
+            {
+                long totalRequestAmount = pendingRequests.Sum(item => item.WalletTransaction.Amount);
+                var walletBalance = await _walletRepo.GetBalance(model.WalletId);
+                long allowedReqAmount = walletBalance - totalRequestAmount;
+
+                if (allowedReqAmount < model.Amount)
+                {
+                    return Json(new { Status = "Invalid", Message = $"مجموع برداشت های پردازش نشده ی شما {totalRequestAmount:##,###} تومان بوده و سقف مجاز برداشت شما {allowedReqAmount:##,###} تومان میباشد" });
+                }
+            }
             var transaction = new WalletTransaction
             {
                 Amount = model.Amount,

@@ -68,12 +68,17 @@ namespace Wedding.Web.Areas.Apanel.Controllers
                 #region Check for duplicate username or email
                 if (await _userRepo.UserNameExists(form.UserName))
                 {
-                    ModelState.AddModelError(string.Empty, "کاربر دیگری با همین نام در سیستم ثبت شده");
+                    ModelState.AddModelError(string.Empty, "کاربر دیگری با این نام در سیستم ثبت شده");
                     return View(form);
                 }
                 if (await _userRepo.EmailExists(form.Email))
                 {
-                    ModelState.AddModelError(string.Empty, "کاربر دیگری با همین ایمیل در سیستم ثبت شده");
+                    ModelState.AddModelError(string.Empty, "کاربر دیگری با این ایمیل در سیستم ثبت شده");
+                    return View(form);
+                }
+                if (await _userRepo.phoneNumberExists(form.PhoneNumber))
+                {
+                    ModelState.AddModelError(string.Empty, "کاربر دیگری با این شماره تلفن در سیستم ثبت شده");
                     return View(form);
                 }
                 #endregion
@@ -141,6 +146,11 @@ namespace Wedding.Web.Areas.Apanel.Controllers
                 if (await _userRepo.EmailExists(user.Email, user.Id))
                 {
                     ModelState.AddModelError(string.Empty, "کاربر دیگری با همین ایمیل در سیستم ثبت شده");
+                    return View(user);
+                }
+                if (await _userRepo.phoneNumberExists(user.PhoneNumber,user.Id))
+                {
+                    ModelState.AddModelError(string.Empty, "کاربر دیگری با این شماره تلفن در سیستم ثبت شده");
                     return View(user);
                 }
                 #endregion

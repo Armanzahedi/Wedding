@@ -74,17 +74,17 @@
                         render: function (data, type, row) {
                             var content = "";
                             @{
-                                if (await PermissionHelper.UserHasPermission("Customers", "Details"))
+                                if (await PermissionHelper.UserHasPermission("WithdrawalRequests", "ProcessOrReject"))
                                 {
                                     <text>
-                                    var element = `<a class='btn btn-danger text-white btn-sm ml-2' href='/apanel/Customers/Details/${row.Id}'>رد درخواست</a>`;
+                                    var element = `<a class='btn btn-danger text-white btn-sm ml-2' onclick="openModal('/apanel/WithdrawalRequests/RejectRequest/${row.Id}')">رد درخواست</a>`;
                                     content += element;
                                     </text>
                                 }
-                                if (await PermissionHelper.UserHasPermission("Customers", "Details"))
+                                if (await PermissionHelper.UserHasPermission("WithdrawalRequests", "ProcessOrReject"))
                                 {
                                     <text>
-                                        var element = `<a class='btn btn-success text-white btn-sm ml-2' href='/apanel/Wallets/Customer/${row.Id}?referer=customer'>پرداخت شد</a>`;
+                                        var element = `<a class='btn btn-success text-white btn-sm ml-2' onclick="openModal('/apanel/WithdrawalRequests/ProcessRequest/${row.Id}')">پرداخت شد</a>`;
                                         content += element;
                                     </text>
                                 }

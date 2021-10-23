@@ -107,13 +107,11 @@ namespace Wedding.Web.Controllers
                 try
                 {
                     var verificationCode = GenerateRandom6DigitNumber();
-                    var message = $"ازدواج ایرانی " +
-                                  $"کد تایید: {verificationCode}";
-                    var result = await SmsHelper.SendSms(phoneNumber, message);
-                    if (result.Status != 100)
-                    {
-                        return Json(new { Status = "invalid", Message = "ارسال پیام با خطا مواجه شد" });
-                    }
+
+                    // sms
+                    var message = $"ازدواج ایرانی \n کد تایید: {verificationCode}";
+                    var result = SmsHelper.SendSms(phoneNumber, message);
+
                     HttpContext.Session.SetString("VerificationCodeGenerateDate", DateTime.Now.ToString(CultureInfo.InvariantCulture));
                     HttpContext.Session.SetString("VerificationCode", verificationCode);
                 }

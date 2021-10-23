@@ -151,20 +151,26 @@ namespace Wedding.Web.Areas.Apanel.Controllers
             return PartialView(model);
         }
         [HttpPost]
-        public async Task<IActionResult> Edit(CustomerEditDto model)
+        public async Task<JsonResult> Edit(CustomerEditDto model)
         {
             if (!ModelState.IsValid)
-                return PartialView(model);
+                return Json(new {Status = "Invalid",Message = "اطلاعات وارد شده صحیح نیست"});
+
+            var phonExists = await _userRepo.phoneNumberExists(model.PhoneNumber, model.UserId);
+            if (phonExists)
+                return Json(new { Status = "Invalid", Message = "کاربر دیگری با این شماره تلفن در سیستم ثبت شده" });
+
+            var userNamExists = await _userRepo.UserNameExists(model.UserName, model.UserId);
+            if (userNamExists)
+                return Json(new { Status = "Invalid", Message = "کاربر دیگری با این نام کاربری در سیستم ثبت شده" });
 
             var result = await _customerRepo.EditCustomer(model);
 
             if (result == false)
-            {
-                ModelState.AddModelError(string.Empty, "ثبت تغییرات با خطا مواجه شد");
-                return View(model);
-            }
+                return Json(new { Status = "Invalid", Message = "ثبت تغییرات با خطا مواجه شد" });
 
-            return RedirectToAction("Details", new {model.Id});
+            return Json(new { Status = "Success", Message = "تغییرات با موفقیت ثبت شد" });
+
         }
         [AllowAnonymous]
         public IActionResult AdsGrid(int id)

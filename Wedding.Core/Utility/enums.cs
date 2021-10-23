@@ -19,10 +19,6 @@ namespace Wedding.Core.Utility
         Approved = 3,
         Rejected = 4
     }
-    public enum PurchaseType { 
-        Purchase = 1,
-        Extention = 2
-    }
 
     public enum AdType
     {
@@ -50,7 +46,7 @@ namespace Wedding.Core.Utility
     {
         Deposit = 1,
         Withdraw = 2,
-        Charge = 3,
+        Reservation = 3,
         Payment = 4
     }
 
@@ -84,6 +80,13 @@ namespace Wedding.Core.Utility
     {
         Requested = 1,
         Processed = 2,
+        Rejected = 3
+    }
+
+    public enum AdPurchaseStatus
+    {
+        Pending = 1,
+        Approved = 2,
         Rejected = 3
     }
 }

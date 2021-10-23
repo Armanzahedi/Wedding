@@ -15,6 +15,7 @@ namespace Wedding.Infrastructure.Repositories
     public interface IWalletRepository : IBaseRepository<Wallet>
     {
         Task<Wallet> GetByCustomerId(int customerId);
+        Task<long> GetBalance(int walletId);
         Task<List<WalletTransaction>> GetTransactionHistory(int walletId);
         Task<Payment> SubmitDeposit(DepositDto model);
         Task<WalletTransaction> ProccessDeposit(int paymentId, PaymentStatus paymentStatus);
@@ -37,6 +38,14 @@ namespace Wedding.Infrastructure.Repositories
         public async Task<Wallet> GetByCustomerId(int customerId)
         {
             return await base.GetDefaultQuery().AsQueryable().FirstOrDefaultAsync(w => w.CustomerId == customerId);
+        }
+
+        public async Task<long> GetBalance(int walletId)
+        {
+            var model = await base.GetDefaultQuery().AsQueryable()
+                .Select(w => new { w.Id, w.Balance })
+                .FirstOrDefaultAsync(w => w.Id == walletId);
+            return model.Balance;
         }
 
         public async Task<List<WalletTransaction>> GetTransactionHistory(int walletId)
