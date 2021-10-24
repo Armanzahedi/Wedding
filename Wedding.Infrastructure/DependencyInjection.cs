@@ -32,6 +32,7 @@ namespace Wedding.Infrastructure
             services.AddScoped<IPaymentAccountRepository, PaymentAccountRepository>();
             services.AddScoped<IPaymentRepository, PaymentRepository>();
             services.AddScoped<IWithdrawalRequestRepository, WithdrawalRequestRepository>();
+            services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 
             #endregion
 

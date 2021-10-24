@@ -45,14 +45,17 @@
                                         @{
                                             switch(Model[i].AdStatus) 
                                             {
-                                                case ApprovalStatus.Review:
-                                                    <span class="badge badge-pill badge-info">در حال بررسی</span>
+                                                case ApprovalStatus.Pending:
+                                                    <span class="badge badge-pill badge-info">در انتضار بررسی</span>
                                                     break;
                                                 case ApprovalStatus.Approved:
                                                     <span class="badge badge-pill badge-success">تأیید شده</span>
                                                     break;
                                                 case ApprovalStatus.Rejected:
                                                     <span class="badge badge-pill badge-danger">رد شده</span>
+                                                    break;
+                                                case ApprovalStatus.Review:
+                                                    <span class="badge badge-pill badge-warning text-white">در حال بررسی</span>
                                                     break;
                                                 default:
                                                     <span class="badge badge-pill badge-warning text-white">-</span>

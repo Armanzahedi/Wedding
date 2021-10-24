@@ -11,6 +11,10 @@
     <Compile Remove="Migrations\20211020095848_AddedWithdrawalRequest.Designer.cs" />
     <Compile Remove="Migrations\20211020100113_AddedWithdrawalRequest.cs" />
     <Compile Remove="Migrations\20211020100113_AddedWithdrawalRequest.Designer.cs" />
+    <Compile Remove="Migrations\20211024193045_AddedInvoice.cs" />
+    <Compile Remove="Migrations\20211024193045_AddedInvoice.Designer.cs" />
+    <Compile Remove="Migrations\20211024193348_AddedInvoice.cs" />
+    <Compile Remove="Migrations\20211024193348_AddedInvoice.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

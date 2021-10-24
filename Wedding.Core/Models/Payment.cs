@@ -7,12 +7,10 @@ namespace Wedding.Core.Models
 {
     public class Payment : BaseEntity
     {
-        public int CustomerId { get; set; }
-        public Customer Customer { get; set; }
-        public PaymentType PaymentType { get; set; }
+        public int InvoiceId { get; set; }
+        public Invoice Invoice { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
         public DateTime CreateDate { get; set; }
-        public DateTime ProcessedDate { get; set; }
         public long Amount { get; set; }
     }
 }

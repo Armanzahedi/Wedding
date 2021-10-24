@@ -17,22 +17,22 @@ namespace Wedding.Infrastructure.Repositories
         Task<Wallet> GetByCustomerId(int customerId);
         Task<long> GetBalance(int walletId);
         Task<List<WalletTransaction>> GetTransactionHistory(int walletId);
-        Task<Payment> SubmitDeposit(DepositDto model);
-        Task<WalletTransaction> ProccessDeposit(int paymentId, PaymentStatus paymentStatus);
+        Task<Invoice> SubmitDeposit(DepositDto model);
+        Task<WalletTransaction> ProccessDeposit(int invoiceId);
     }
     public class WalletRepository : BaseRepository<Wallet>, IWalletRepository
     {
         private readonly MyDbContext _context;
         private readonly ILogRepository _logger;
         private readonly IWalletTransactionRepository _transactionRepo;
-        private readonly IPaymentRepository _paymentRepo;
+        private readonly IInvoiceRepository _invoiceRepo;
 
-        public WalletRepository(MyDbContext context, ILogRepository logger, IWalletTransactionRepository transactionRepo, IPaymentRepository paymentRepo) : base(context, logger)
+        public WalletRepository(MyDbContext context, ILogRepository logger, IWalletTransactionRepository transactionRepo, IInvoiceRepository invoiceRepo) : base(context, logger)
         {
             _context = context;
             _logger = logger;
             _transactionRepo = transactionRepo;
-            _paymentRepo = paymentRepo;
+            _invoiceRepo = invoiceRepo;
         }
 
         public async Task<Wallet> GetByCustomerId(int customerId)
@@ -53,18 +53,17 @@ namespace Wedding.Infrastructure.Repositories
             return await _transactionRepo.GetDefaultQuery().AsQueryable().Where(w=>w.WalletId == walletId).OrderByDescending(t=>t.CreateDate).ToListAsync();
         }
 
-        public async Task<Payment> SubmitDeposit(DepositDto model)
+        public async Task<Invoice> SubmitDeposit(DepositDto model)
         {
             var wallet = await base.GetById(model.WalletId);
-            var payment = new Payment
+            var invoice = new Invoice()
             {
                 CustomerId = wallet.CustomerId,
                 Amount = model.Amount,
-                PaymentStatus = PaymentStatus.Pending,
-                PaymentType = PaymentType.WalletDeposit,
+                InvoiceType = InvoiceType.WalletDeposit,
                 CreateDate = DateTime.Now
             };
-            await _paymentRepo.Add(payment);
+            await _invoiceRepo.Add(invoice);
             var transaction = new WalletTransaction
             {
                 WalletId = model.WalletId,
@@ -72,17 +71,18 @@ namespace Wedding.Infrastructure.Repositories
                 TransactionStatus = WalletTransctionStatus.Pending,
                 Amount = model.Amount,
                 CreateDate = DateTime.Now,
-                PaymentId = payment.Id
+                InvoiceId = invoice.Id
             };
             await _transactionRepo.Add(transaction);
-            return payment;
+            return invoice;
         }
 
-        public async Task<WalletTransaction> ProccessDeposit(int paymentId, PaymentStatus paymentStatus)
+        public async Task<WalletTransaction> ProccessDeposit(int invoiceId)
         {
-            var transaction = await _transactionRepo.GetByPaymentId(paymentId);
+            var invoice = await _invoiceRepo.GetById(invoiceId);
+            var transaction = await _transactionRepo.GetByInvoiceId(invoiceId);
 
-            if (paymentStatus == PaymentStatus.Payed)
+            if (invoice.IsPayed)
             {
                 transaction.TransactionStatus = WalletTransctionStatus.Processed;
                 await _transactionRepo.Update(transaction);
@@ -91,7 +91,7 @@ namespace Wedding.Infrastructure.Repositories
                 wallet.Balance += transaction.Amount;
                 await base.Update(wallet);
             }
-            else if (paymentStatus == PaymentStatus.Failed)
+            else
             {
                 transaction.TransactionStatus = WalletTransctionStatus.Failed;
                 transaction.IsDeleted = true;

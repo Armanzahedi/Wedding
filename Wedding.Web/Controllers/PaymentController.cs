@@ -9,9 +9,11 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Wedding.Core.Models;
 using Wedding.Core.Utility;
 using Wedding.Infrastructure.Repositories;
 using ZarinPal.Class;
+using Payment = ZarinPal.Class.Payment;
 
 namespace Wedding.Web.Controllers
 {
@@ -21,15 +23,17 @@ namespace Wedding.Web.Controllers
         private readonly Authority _authority;
         private readonly Transactions _transactions;
         private readonly IPaymentRepository _paymentRepo;
+        private readonly IInvoiceRepository _invoiceRepo;
         private readonly ICustomerRepository _customerRepo;
         private readonly IWalletTransactionRepository _walletTransactionRepo;
         private readonly IWalletRepository _walletRepo;
-        public PaymentController(IPaymentRepository paymentRepo, ICustomerRepository customerRepo, IWalletTransactionRepository walletTransactionRepo, IWalletRepository walletRepo)
+        public PaymentController(IPaymentRepository paymentRepo, ICustomerRepository customerRepo, IWalletTransactionRepository walletTransactionRepo, IWalletRepository walletRepo, IInvoiceRepository invoiceRepo)
         {
             _paymentRepo = paymentRepo;
             _customerRepo = customerRepo;
             _walletTransactionRepo = walletTransactionRepo;
             _walletRepo = walletRepo;
+            _invoiceRepo = invoiceRepo;
             var expose = new Expose();
             _payment = expose.CreatePayment();
             _authority = expose.CreateAuthority();
@@ -43,24 +47,24 @@ namespace Wedding.Web.Controllers
         {
 
             var baseUrl = "https://localhost:44309";
-            var payment = await _paymentRepo.GetById(id);
-            var amount = (int)payment.Amount * 10; // Toman to rial
-            var customer = await _customerRepo.GeWithUser(payment.CustomerId);
+            var invoice = await _invoiceRepo.GetById(id);
+            var amount = (int)invoice.PaymentAmount * 10; // Toman to rial
+            var customer = await _customerRepo.GeWithUser(invoice.CustomerId);
             var refererStr = referer != null ? $"?referer={referer}" : null;
-            string description = $"پرداخت فاکتور شماره {payment.Id} ";
-            switch (payment.PaymentType)
+            string description = $"پرداخت فاکتور شماره {invoice.Id} ";
+            switch (invoice.InvoiceType)
             {
-                case PaymentType.WalletDeposit:
-                    description += $"( شارژ کیف پول )";
+                case InvoiceType.WalletDeposit:
+                    description += $"(شارژ کیف پول)";
                     break;
-                case PaymentType.AdPurchase:
-                    description += $"( خرید آگهی ویژه )";
+                case InvoiceType.AdPurchase:
+                    description += $"(خرید آگهی ویژه)";
                     break;
-                case PaymentType.BannerPurchase:
-                    description += $"( خرید بنر تبلیغاتی )";
+                case InvoiceType.BannerPurchase:
+                    description += $"(خرید بنر تبلیغاتی)";
                     break;
-                case PaymentType.Reservation:
-                    description += $"( رزرو )";
+                case InvoiceType.Reservation:
+                    description += $"(رزرو)";
                     break;
                 default:
                     break;
@@ -68,7 +72,7 @@ namespace Wedding.Web.Controllers
             var result = await _payment.Request(new DtoRequest()
             {
                 Mobile = customer.User.PhoneNumber,
-                CallbackUrl = $"{baseUrl}/Payment/PaymentResponse/{payment.Id}{refererStr}",
+                CallbackUrl = $"{baseUrl}/Payment/PaymentResponse/{invoice.Id}{refererStr}",
                 //CallbackUrl = $"https://localhost:44310/Payment/PaymentResponse/{payment.Id}",
                 Description = description,
                 Email = customer.User.Email,
@@ -87,8 +91,8 @@ namespace Wedding.Web.Controllers
         public async Task<IActionResult> PaymentResponse(int id,string authority,string status,string referer = null)
         {
 
-            var payment = await _paymentRepo.GetById(id);
-            var amount = (int)payment.Amount * 10;
+            var invoice = await _invoiceRepo.GetById(id);
+            var amount = (int)invoice.PaymentAmount * 10;
             var verification = await _payment.Verification(new DtoVerification
             {
                 Amount = amount,
@@ -96,8 +100,8 @@ namespace Wedding.Web.Controllers
                 Authority = authority
             }, Payment.Mode.sandbox);
             
-            ViewBag.PaymentId = payment.Id;
-            var result = await ProccessPayment(payment, verification);
+            ViewBag.InvoiceId = invoice.Id;
+            var result = await ProccessPayment(invoice, verification);
 
             if (referer != null)
             {
@@ -110,14 +114,23 @@ namespace Wedding.Web.Controllers
             return View(result);
         }
 
-        public async Task<bool> ProccessPayment(Core.Models.Payment payment,Verification verification)
+        public async Task<bool> ProccessPayment(Invoice invoice,Verification verification)
         {
-            payment.ProcessedDate = DateTime.Now;
+            invoice.ProcessedDate = DateTime.Now;
+
+            var payment = new Core.Models.Payment
+            {
+                InvoiceId = invoice.Id,
+                CreateDate = DateTime.Now,
+                Amount = invoice.PaymentAmount
+            };
+
             var validation = false;
             // success
             if (verification.Status == 100)
             {
                 validation = true;
+                invoice.IsPayed = true;
                 payment.PaymentStatus = PaymentStatus.Payed;
             }
             else
@@ -125,17 +138,18 @@ namespace Wedding.Web.Controllers
                 payment.PaymentStatus = PaymentStatus.Failed;
             }
 
+            await _paymentRepo.Add(payment);
+            await _invoiceRepo.Update(invoice);
+
             // Proccess payment based on payment type
-            switch (payment.PaymentType)
+            switch (invoice.InvoiceType)
             {
-                case PaymentType.WalletDeposit:
-                    await _walletRepo.ProccessDeposit(payment.Id,payment.PaymentStatus);
+                case InvoiceType.WalletDeposit:
+                    await _walletRepo.ProccessDeposit(invoice.Id);
                     break;
                 default:
                     break;
             }
-
-            await _paymentRepo.Update(payment);
             return validation;
         }
         /// <summary>

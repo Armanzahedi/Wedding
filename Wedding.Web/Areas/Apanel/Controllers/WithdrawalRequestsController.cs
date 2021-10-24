@@ -83,7 +83,10 @@ namespace Wedding.Web.Areas.Apanel.Controllers
             var userFirstName = string.IsNullOrEmpty(user.FirstName) ? "کاربر" : user.FirstName;
 
             // sms
-            var message = $"ازدواج ایرانی \n {userFirstName} عزیز درخواست برداشت شما با موفقیت پردازش شد \n مبلغ: {amountStr} \n تاریخ ثبت : {request.RequestDate.ToPersianDate()}";
+            var message = $"ازدواج ایرانی \n " +
+                          $"{userFirstName} عزیز درخواست برداشت شما با موفقیت پردازش شد \n " +
+                          $"مبلغ: {amountStr} \n" +
+                          $" تاریخ ثبت : {request.RequestDate.ToPersianDate()} ";
 
             var result = SmsHelper.SendSms(user.PhoneNumber, message);
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using FluentValidation;
 using Wedding.Core.Utility;
 
 namespace Wedding.Infrastructure.DTOs
@@ -101,8 +102,17 @@ namespace Wedding.Infrastructure.DTOs
     public class UpgradeAdDto
     {
         public int Id { get; set; }
-        public DateTime FromDate { get; set; }
-        public DateTime ToDate { get; set; }
+        public int AdId { get; set; }
+
+        [Display(Name = "مبلغ (تومان)")]
+        [Required(ErrorMessage = "لطفا {0} را وارد کنید")]
+        [Range(1000, long.MaxValue, ErrorMessage = "حداقل مبلغ 1,000 تومان باشد")]
         public long Price { get; set; }
+        [Display(Name = "ویژه از تاریخ")]
+        [Required(ErrorMessage = "لطفا {0} را وارد کنید")]
+        public string PurchasedFrom { get; set; }
+        [Display(Name = "ویژه تا تاریخ")]
+        [Required(ErrorMessage = "لطفا {0} را وارد کنید")]
+        public string PurchasedTo { get; set; }
     }
 }

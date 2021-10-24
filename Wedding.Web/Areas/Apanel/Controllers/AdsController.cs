@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using DataTablesParser;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -14,6 +15,7 @@ using Wedding.Core.Models;
 using Wedding.Core.Utility;
 using Wedding.Infrastructure.DTOs;
 using Wedding.Infrastructure.ExtensionMethods;
+using Wedding.Infrastructure.Helpers;
 using Wedding.Infrastructure.Repositories;
 using Wedding.Web.Areas.Apanel.ViewModels;
 
@@ -58,8 +60,7 @@ namespace Wedding.Web.Areas.Apanel.Controllers
                     Id = a.Id,
                     Title = a.Title,
                     Customer = $"{a.Customer.User.FirstName} {a.Customer.User.LastName} - {a.Customer.User.PhoneNumber}",
-                    AdType = (a.IsPermenantPremium ||
-                              (a.AdPurchaseHistory != null && a.AdPurchaseHistory.Any(a => a.PurchasedFrom <= DateTime.Now && a.PurchasedTo >= DateTime.Now)))? AdType.Premium : AdType.Free,
+                    AdType = a.GetAdType(),
                     PersianDate = new PersianDateTime(a.RegisterDate).ToPersianDateString(),
                     RegisterDate = a.RegisterDate,
                     AdStatus = a.Status
@@ -149,7 +150,7 @@ namespace Wedding.Web.Areas.Apanel.Controllers
         {
             if (id != 0)
             {
-                var ad = await _adRepo.GetwithPurchaseHistory(id);
+                var ad = await _adRepo.GetwithPurchaseHistory().FirstOrDefaultAsync(a=>a.Id == id);
                 ViewBag.Id = id;
                 ViewBag.AdType = ad.GetAdType();
                 if (referer != null)
@@ -281,7 +282,7 @@ namespace Wedding.Web.Areas.Apanel.Controllers
                 return Json(new { Status = "invalid", Error = "لطفا تصویر را وارد کنید" });
             }
 
-            var ad = await _adRepo.GetwithPurchaseHistory(model.AdId);
+            var ad = await _adRepo.GetwithPurchaseHistory().FirstOrDefaultAsync(a=>a.Id == model.AdId);
             if (ad.GetAdType() == AdType.Free)
             {
                 return Json(new { Status = "invalid", Error = "امکان افزودن گالری در آگهی رایگان وجود نداری" });
@@ -353,7 +354,7 @@ namespace Wedding.Web.Areas.Apanel.Controllers
         [Authorize("Details")]
         public async Task<JsonResult> UpdateCoordinates(int id, double lng, double lat)
         {
-            var ad = await _adRepo.GetwithPurchaseHistory(id);
+            var ad = await _adRepo.GetwithPurchaseHistory().FirstOrDefaultAsync(a => a.Id == id);
             if (ad.GetAdType() == AdType.Free)
             {
                 return Json(new { Status = "invalid",Error = "امکان ثبت موقعیت مکانی در آگهی رایگان وجود نداری" });
@@ -362,9 +363,51 @@ namespace Wedding.Web.Areas.Apanel.Controllers
             return Json(new { Status = "success" });
         }
 
-        public async Task<IActionResult> UpgradeAd(int ind)
+        public IActionResult Upgrade(int id)
         {
-            return null;
+            ViewBag.AdId = id;
+            return PartialView();
+        }
+        [HttpPost]
+        public async Task<JsonResult> Upgrade(UpgradeAdDto model)
+        {
+            if (!ModelState.IsValid)
+                return ModelState.ReturnJsonError();
+
+            var from = DateTime.Parse(model.PurchasedFrom, new CultureInfo("fa-IR"));
+            var to = DateTime.Parse(model.PurchasedTo, new CultureInfo("fa-IR"));
+
+            if (from >= to)
+            {
+                return Json(new { Status = "Invalid", Message = "تعارض میان تاریخ های وارد شده" });
+            }
+
+            var previousAdPurchases = await _adRepo.GetActivePurchaseList(model.AdId);
+
+            // check if there is a previous purchase that overlaps with current purchase
+            if (previousAdPurchases.Any(h=>h.PurchasedFrom < to && from < h.PurchasedTo))
+            {
+                var prevPr = previousAdPurchases.FirstOrDefault(h => h.PurchasedFrom < to && from < h.PurchasedTo);
+                var message = $"این آگهی از تاریخ {prevPr.PurchasedFrom.ToPersianOnlyDate()} تا تاریخ {prevPr.PurchasedTo.ToPersianOnlyDate()} ویژه میباشد <br/> لطفا تاریخ های وارد شده را بررسی کنید";
+                return Json(new { Status = "Invalid", Message = message });
+            }
+
+            await _adRepo.UpgradeAd(model, from, to);
+
+            var ad = await _adRepo.GetById(model.AdId);
+            var user = await _adRepo.GetAdUser(model.AdId);
+
+            var amountStr = $"{model.Price.ToString("##,###")} تومان";
+            var userFirstName = string.IsNullOrEmpty(user.FirstName) ? "کاربر" : user.FirstName;
+            //sms
+            var smsMessage = $"ازدواج ایرانی \n" +
+                             $"{userFirstName} عزیز فاکتور ارتقا آگهی {ad.Title} ایجاد شد لطفا نسبت به پرداخت آن اقدام کنید \n" +
+                             $"مبلغ: {amountStr} \n" +
+                             $"از تاریخ: {from.ToPersianOnlyDate()}" +
+                             $"تا تاریخ: {to.ToPersianOnlyDate()}";
+
+            var result = SmsHelper.SendSms(user.PhoneNumber, smsMessage);
+            return Json(new { Status = "Success", Message = "درخواست ارتقا با موفقیت ثبت شد" });
         }
     }
 }

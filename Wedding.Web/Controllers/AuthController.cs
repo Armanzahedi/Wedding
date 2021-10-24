@@ -108,7 +108,7 @@ namespace Wedding.Web.Controllers
                 {
                     var verificationCode = GenerateRandom6DigitNumber();
 
-                    // sms
+                    //sms
                     var message = $"ازدواج ایرانی \n کد تایید: {verificationCode}";
                     var result = SmsHelper.SendSms(phoneNumber, message);
 

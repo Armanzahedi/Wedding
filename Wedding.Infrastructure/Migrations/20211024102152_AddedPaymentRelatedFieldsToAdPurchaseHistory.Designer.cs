@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Wedding.Infrastructure.Context;
 
 namespace Wedding.Infrastructure.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211024102152_AddedPaymentRelatedFieldsToAdPurchaseHistory")]
+    partial class AddedPaymentRelatedFieldsToAdPurchaseHistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,21 +51,21 @@ namespace Wedding.Infrastructure.Migrations
                         new
                         {
                             Id = "29bd76db-5835-406d-ad1d-7a0901447c18",
-                            ConcurrencyStamp = "912642fd-3621-4836-a5d3-e34a2dcb5dff",
+                            ConcurrencyStamp = "0db7bdef-2817-478d-a85c-90a784de13fa",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "d7be43da-622c-4cfe-98a9-5a5161120d24",
-                            ConcurrencyStamp = "c73ba76f-00e6-4c8b-a5ac-2847a50426c0",
+                            ConcurrencyStamp = "c460f4e3-3e33-423f-b171-2b5211ca6150",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
                             Id = "29bd76db-5835-406d-ad1d-7a0901448abd",
-                            ConcurrencyStamp = "37cfc697-f576-4b01-a81f-5f68e5c6df8b",
+                            ConcurrencyStamp = "560e0f81-f541-497c-b8e9-37d8793fc71c",
                             Name = "Superuser",
                             NormalizedName = "SUPERUSER"
                         });
@@ -408,8 +410,17 @@ namespace Wedding.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<DateTime?>("ActivateDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("AdId")
                         .HasColumnType("int");
+
+                    b.Property<int>("AdPurchaseStatus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Contract")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
@@ -420,11 +431,14 @@ namespace Wedding.Infrastructure.Migrations
                     b.Property<string>("InsertUser")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("InvoiceId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<bool>("OnlinePayment")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("PaymentId")
+                        .HasColumnType("int");
 
                     b.Property<long>("Price")
                         .HasColumnType("bigint");
@@ -434,6 +448,9 @@ namespace Wedding.Infrastructure.Migrations
 
                     b.Property<DateTime>("PurchasedTo")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Receipt")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("datetime2");
@@ -445,7 +462,7 @@ namespace Wedding.Infrastructure.Migrations
 
                     b.HasIndex("AdId");
 
-                    b.HasIndex("InvoiceId");
+                    b.HasIndex("PaymentId");
 
                     b.ToTable("AdPurchaseHistory");
                 });
@@ -852,68 +869,6 @@ namespace Wedding.Infrastructure.Migrations
                     b.HasIndex("ParentId");
 
                     b.ToTable("GeoDivisions");
-                });
-
-            modelBuilder.Entity("Wedding.Core.Models.Invoice", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<long>("Amount")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("InsertDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("InsertUser")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("InvoicePaymentMethod")
-                        .HasColumnType("int");
-
-                    b.Property<int>("InvoiceType")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsPayed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsReviewed")
-                        .HasColumnType("bit");
-
-                    b.Property<long>("PaymentAmount")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("ProcessedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Receipt")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdateUser")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("WalletAmount")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId");
-
-                    b.ToTable("Invoices");
                 });
 
             modelBuilder.Entity("Wedding.Core.Models.JobType", b =>
@@ -1344,20 +1299,26 @@ namespace Wedding.Infrastructure.Migrations
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("InsertDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("InsertUser")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("InvoiceId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<int>("PaymentStatus")
                         .HasColumnType("int");
+
+                    b.Property<int>("PaymentType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ProcessedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("datetime2");
@@ -1367,7 +1328,7 @@ namespace Wedding.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("InvoiceId");
+                    b.HasIndex("CustomerId");
 
                     b.ToTable("Payments");
                 });
@@ -1612,7 +1573,7 @@ namespace Wedding.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            InsertDate = new DateTime(2021, 10, 24, 23, 35, 15, 889, DateTimeKind.Local).AddTicks(417),
+                            InsertDate = new DateTime(2021, 10, 24, 13, 51, 51, 950, DateTimeKind.Local).AddTicks(6488),
                             InsertUser = "SuperUser",
                             IsDeleted = false,
                             Key = "DefaultPassword",
@@ -1722,7 +1683,7 @@ namespace Wedding.Infrastructure.Migrations
                             Id = "75625814-138e-4831-a1ea-bf58e211adff",
                             AccessFailedCount = 0,
                             Avatar = "user-avatar.png",
-                            ConcurrencyStamp = "6c65e017-bc05-484f-92c1-3ff723707b6f",
+                            ConcurrencyStamp = "2c6cee9e-a1c3-480f-a550-59c0a1cc82c3",
                             Email = "Admin@Admin.com",
                             EmailConfirmed = true,
                             FirstName = "Admin",
@@ -1732,9 +1693,9 @@ namespace Wedding.Infrastructure.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@ADMIN.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEPGxEDKNL8k8FxPpNRMHRH+lhczYHpbNk2G0H8r1N/addU8VkUKrvr7bt62HnRINtw==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEK6pdO5TwG2ahxAwSUWHCxyBPe0/sk6Y9zBjvb+jVaXZ6OYChJ9eVs6uv4S2CaDzYA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "b9c7c16d-dd77-43ea-8c41-f39116c0da52",
+                            SecurityStamp = "b35d446a-2dbb-43bf-bad6-2c431c96fc93",
                             TwoFactorEnabled = false,
                             UserName = "Admin"
                         },
@@ -1743,7 +1704,7 @@ namespace Wedding.Infrastructure.Migrations
                             Id = "75625814-138e-4831-a1ea-bf58e211acmf",
                             AccessFailedCount = 0,
                             Avatar = "user-avatar.png",
-                            ConcurrencyStamp = "10f9f180-f793-4ee7-b6f7-139a7b379ea9",
+                            ConcurrencyStamp = "995a02b6-c03d-4418-8c42-7ceeafb6ee40",
                             Email = "Superuser@Superuser.com",
                             EmailConfirmed = true,
                             FirstName = "Superuser",
@@ -1753,9 +1714,9 @@ namespace Wedding.Infrastructure.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "SUPERUSER@SUPERUSER.COM",
                             NormalizedUserName = "SUPERUSER",
-                            PasswordHash = "AQAAAAEAACcQAAAAEFinn0sW+I8Z+vedQmFlX7fi3EcHQzF2T4Hvjma+ACB/G9d4mkySCmj96b04CfjrYg==",
+                            PasswordHash = "AQAAAAEAACcQAAAAELH/ZxauNsuer2bwXAlWEhiNpOttA9j6g75l6J8OD/CYM7g+mBbpOKkkTHRvBq75KA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "fb275892-5dcc-4da4-936d-abc462f3d6ce",
+                            SecurityStamp = "8793d295-cc02-49a4-bbc0-6db3b0538fb1",
                             TwoFactorEnabled = false,
                             UserName = "Superuser"
                         });
@@ -1815,11 +1776,11 @@ namespace Wedding.Infrastructure.Migrations
                     b.Property<string>("InsertUser")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("InvoiceId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<int?>("PaymentId")
+                        .HasColumnType("int");
 
                     b.Property<int>("TransactionStatus")
                         .HasColumnType("int");
@@ -1841,7 +1802,7 @@ namespace Wedding.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("InvoiceId");
+                    b.HasIndex("PaymentId");
 
                     b.HasIndex("WalletId");
 
@@ -2002,11 +1963,9 @@ namespace Wedding.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Wedding.Core.Models.Invoice", "Invoice")
+                    b.HasOne("Wedding.Core.Models.Payment", "Payment")
                         .WithMany()
-                        .HasForeignKey("InvoiceId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .HasForeignKey("PaymentId");
                 });
 
             modelBuilder.Entity("Wedding.Core.Models.AdRating", b =>
@@ -2103,15 +2062,6 @@ namespace Wedding.Infrastructure.Migrations
                         .HasForeignKey("ParentId");
                 });
 
-            modelBuilder.Entity("Wedding.Core.Models.Invoice", b =>
-                {
-                    b.HasOne("Wedding.Core.Models.Customer", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Wedding.Core.Models.NavigationMenu", b =>
                 {
                     b.HasOne("Wedding.Core.Models.NavigationMenu", "ParentNavigationMenu")
@@ -2121,9 +2071,9 @@ namespace Wedding.Infrastructure.Migrations
 
             modelBuilder.Entity("Wedding.Core.Models.Payment", b =>
                 {
-                    b.HasOne("Wedding.Core.Models.Invoice", "Invoice")
+                    b.HasOne("Wedding.Core.Models.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("InvoiceId")
+                        .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -2157,9 +2107,9 @@ namespace Wedding.Infrastructure.Migrations
 
             modelBuilder.Entity("Wedding.Core.Models.WalletTransaction", b =>
                 {
-                    b.HasOne("Wedding.Core.Models.Invoice", "Invoice")
+                    b.HasOne("Wedding.Core.Models.Payment", "Payment")
                         .WithMany()
-                        .HasForeignKey("InvoiceId");
+                        .HasForeignKey("PaymentId");
 
                     b.HasOne("Wedding.Core.Models.Wallet", "Wallet")
                         .WithMany("WalletTransactions")

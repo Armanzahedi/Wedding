@@ -1,0 +1,84 @@
+﻿@model UpgradeAdDto
+<link rel="stylesheet" href="/admin/vendors/datepicker-jalali/bootstrap-datepicker.min.css">
+<link rel="stylesheet" href="/admin/vendors/datepicker/daterangepicker.css">
+<input type="hidden" id="title" value="ارتقا آگهی" />
+<form asp-action="Upgrade" method="post" id="form">
+                  <input type="hidden" asp-for="AdId" value="@ViewBag.AdId"/>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="PurchasedFrom" class="col-md-12"></label>
+                                <div class="col-md-12">
+                                    <input type="text" asp-for="PurchasedFrom" class="form-control text-right datepicker" dir="ltr" autocomplete="off">
+                                    <span asp-validation-for="PurchasedFrom" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="PurchasedTo" class="col-md-12"></label>
+                                <div class="col-md-12">
+                                    <input type="text" asp-for="PurchasedTo" class="form-control text-right datepicker" dir="ltr" autocomplete="off">
+                                    <span asp-validation-for="PurchasedTo" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label asp-for="Price" class="col-md-12"></label>
+                                <div class="col-md-12">
+                                    <input asp-for="Price" class="form-control text-right" oninput="formatValue()" value="" autocomplete="off">
+                                    <div style="margin-right: 10px; display: none" id="ShowAmount"></div>
+                                    <span asp-validation-for="Price" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    <div style="margin: auto; width: 95%">
+        <input type="submit" value="صدور فاکتور پرداخت" class="btn btn-success btn-block" />
+    </div>
+</form>
+<script src="/admin/vendors/datepicker-jalali/bootstrap-datepicker.min.js"></script>
+<script src="/admin/vendors/datepicker-jalali/bootstrap-datepicker.fa.min.js"></script>
+<script src="/admin/vendors/datepicker/daterangepicker.js"></script>
+<script>
+    $.validator.unobtrusive.parse("#form");
+    function formatValue(){
+        var x = Number(document.getElementById('Price').value);
+        var showAmount = document.getElementById('ShowAmount');
+        if (x === 0) {
+            showAmount.style.display = "none";
+        } else {
+            showAmount.style.display = "block";
+            showAmount.innerHTML = x.toLocaleString() + " تومان ";
+        }
+    }
+    $('.datepicker').datepicker({
+        dateFormat: "yy/mm/dd",
+        minDate: 'now',
+        showOtherMonths: true,
+        selectOtherMonths: true,
+        changeMonth: true,
+        changeYear: true,
+        showButtonPanel: true,
+    });
+    $('#form').submit(function (e) {
+        e.preventDefault();
+        if ($('#form').valid()) {
+            $.ajax({
+                type: 'POST',   
+                url: "/Apanel/Ads/Upgrade",
+                data: $(this).serialize(),
+                dataType: 'json',   
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
+            }).done(function (response) {
+                if (response.status === "Success") {
+                    $("#myModal").modal('hide');
+                    toastr.success(response.message, "تایید");
+                } else {
+                    toastr.error(response.message, "خطا");
+                }
+            });
+        }
+    });
+</script>

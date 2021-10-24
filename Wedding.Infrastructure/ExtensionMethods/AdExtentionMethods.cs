@@ -13,7 +13,9 @@ namespace Wedding.Infrastructure.ExtensionMethods
         public static AdType GetAdType(this Ad ad)
         {
             if (ad.IsPermenantPremium ||
-                (ad.AdPurchaseHistory != null && ad.AdPurchaseHistory.Any(a => a.PurchasedFrom <= DateTime.Now && a.PurchasedTo >= DateTime.Now)))
+                (ad.AdPurchaseHistory != null && ad.AdPurchaseHistory
+                    .Any(a => a.PurchasedFrom <= DateTime.Now && a.PurchasedTo >= DateTime.Now && 
+                              a.Invoice is { IsDeleted: false, IsPayed: true })))
                 return AdType.Premium;
             else
                 return AdType.Free;

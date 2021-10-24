@@ -11,7 +11,7 @@ namespace Wedding.Infrastructure.Repositories
 {
     public interface IWalletTransactionRepository : IBaseRepository<WalletTransaction>
     {
-        Task<WalletTransaction> GetByPaymentId(int paymentId);
+        Task<WalletTransaction> GetByInvoiceId(int invoiceId);
     }
     public class WalletTransactionRepository : BaseRepository<WalletTransaction>, IWalletTransactionRepository
     {
@@ -24,10 +24,10 @@ namespace Wedding.Infrastructure.Repositories
             _logger = logger;
         }
 
-        public async Task<WalletTransaction> GetByPaymentId(int paymentId)
+        public async Task<WalletTransaction> GetByInvoiceId(int invoiceId)
         {
             return await base.GetDefaultQuery().AsQueryable()
-                .FirstOrDefaultAsync(t => t.PaymentId == paymentId);
+                .FirstOrDefaultAsync(t => t.InvoiceId == invoiceId);
         }
     }
 }

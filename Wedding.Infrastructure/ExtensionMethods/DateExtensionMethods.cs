@@ -103,6 +103,18 @@ namespace Wedding.Infrastructure.ExtensionMethods
                 pc.GetSecond(dt));
             return persianDt;
         }
+        public static string ToPersianOnlyDate(this DateTime dt)
+        {
+            PersianCalendar pc = new PersianCalendar();
+            DateTime thisDate = DateTime.Now;
+
+            // Display the current date using the Gregorian and Persian calendars.
+            var persianDt = string.Format("{0}/{1}/{2}\n",
+                pc.GetYear(dt),
+                pc.GetMonth(dt) < 10 ? $"0{pc.GetMonth(dt)}": pc.GetMonth(dt).ToString(),
+                pc.GetDayOfMonth(dt) < 10 ? $"0{pc.GetDayOfMonth(dt)}": pc.GetDayOfMonth(dt).ToString());
+            return persianDt;
+        }
     }
 
 }

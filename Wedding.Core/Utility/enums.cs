@@ -62,12 +62,19 @@ namespace Wedding.Core.Utility
         Rejected = 3
     }
 
-    public enum PaymentType
+    public enum InvoiceType
     {
         WalletDeposit = 1,
         AdPurchase = 2,
         BannerPurchase = 3,
         Reservation = 4
+    }  
+    public enum InvoicePaymentMethod
+    {
+        Online = 1,
+        Wallet = 2,
+        OnlineAndWallet = 3,
+        Wire = 4 // Kart be Kart
     }
     public enum PaymentStatus
     {

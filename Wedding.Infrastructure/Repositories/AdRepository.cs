@@ -24,9 +24,12 @@ namespace Wedding.Infrastructure.Repositories
         Task<AdInfoDto> GetAdInfo(int adId);
         Task<AdInfoDto> UpdateAdInfo(AdInfoDto model);
         Task<List<AdGallery>> GetAdGallery(int adId);
-        Task<Ad> GetwithPurchaseHistory(int adId);
+        IQueryable<Ad> GetwithPurchaseHistory();
         Task<Ad> UpdateCoordinates(int adId, double lng, double lat);
         Task<int> GetGalleryLimit(int adId);
+        Task<List<AdPurchaseHistory>> GetActivePurchaseList(int adId);
+        Task<AdPurchaseHistory> UpgradeAd(UpgradeAdDto model, DateTime from, DateTime to);
+        Task<User> GetAdUser(int adId);
     }
     public class AdRepository : BaseRepository<Ad>, IAdRepository
     {
@@ -36,8 +39,12 @@ namespace Wedding.Infrastructure.Repositories
         private readonly IAdContactRepository _adContactRepo;
         private readonly IAdPurchaseHistoryRepository _adPurchaseRepo;
         private readonly IAdGalleryRepository _adGalleryRepo;
+        private readonly IInvoiceRepository _invoiceRepo;
 
-        public AdRepository(MyDbContext context, ILogRepository logger, ICustomerRepository customerRepo, IAdContactRepository adContactRepo, IAdPurchaseHistoryRepository adPurchaseRepo, IAdGalleryRepository adGalleryRepo) : base(context, logger)
+        public AdRepository(MyDbContext context, ILogRepository logger,
+            ICustomerRepository customerRepo, IAdContactRepository adContactRepo,
+            IAdPurchaseHistoryRepository adPurchaseRepo, IAdGalleryRepository adGalleryRepo,
+            IInvoiceRepository invoiceRepo) : base(context, logger)
         {
             _context = context;
             _logger = logger;
@@ -45,6 +52,7 @@ namespace Wedding.Infrastructure.Repositories
             _adContactRepo = adContactRepo;
             _adPurchaseRepo = adPurchaseRepo;
             _adGalleryRepo = adGalleryRepo;
+            _invoiceRepo = invoiceRepo;
         }
 
         public async Task<AdCreateDto> GetAdCreate(int? customerId)
@@ -112,7 +120,7 @@ namespace Wedding.Infrastructure.Repositories
 
         public async Task<AdInfoDto> GetAdInfo(int adId)
         {
-            var model = await base.GetDefaultQuery().AsQueryable().Include(a => a.AdPurchaseHistory)
+            var model = await GetwithPurchaseHistory()
                 .Select(a => new AdInfoDto
                 {
                     Id = a.Id,
@@ -183,10 +191,11 @@ namespace Wedding.Infrastructure.Repositories
             return _adGalleryRepo.GetDefaultQuery().AsQueryable().Where(ag => ag.AdId == adId).ToListAsync();
         }
 
-        public async Task<Ad> GetwithPurchaseHistory(int adId)
+        public IQueryable<Ad> GetwithPurchaseHistory()
         {
-            return await base.GetDefaultQuery().AsQueryable().Include(a => a.AdPurchaseHistory)
-                .FirstOrDefaultAsync(a=>a.Id == adId);
+            return base.GetDefaultQuery().AsQueryable()
+                .Include(a => a.AdPurchaseHistory)
+                .ThenInclude(ph=>ph.Invoice);
         }
 
         public async Task<Ad> UpdateCoordinates(int adId, double lng, double lat)
@@ -206,9 +215,49 @@ namespace Wedding.Infrastructure.Repositories
             return galleryLimit.Limit;
         }
 
+        public async Task<List<AdPurchaseHistory>> GetActivePurchaseList(int adId)
+        {
+            return await _adPurchaseRepo.GetDefaultQuery().AsQueryable()
+                .Where(h => h.Invoice.IsPayed == true && h.AdId == adId).ToListAsync();
+        }
+
+        public async Task<AdPurchaseHistory> UpgradeAd(UpgradeAdDto model,DateTime from,DateTime to)
+        {
+            var ad = await base.GetById(model.AdId);
+            var adPurchase = new AdPurchaseHistory
+            {
+                AdId = model.AdId,
+                PurchasedFrom = from,
+                PurchasedTo = to,
+                CreateDate = DateTime.Now,
+                Price = model.Price,
+            };
+            var invoice = new Invoice()
+            {
+                CustomerId = ad.CustomerId,
+                InvoiceType = InvoiceType.AdPurchase,
+                CreateDate = DateTime.Now,
+                Amount = model.Price
+            };
+            await _invoiceRepo.Add(invoice);
+
+            adPurchase.InvoiceId = invoice.Id;
+
+            await _adPurchaseRepo.Add(adPurchase);
+            return adPurchase;
+        }
+
+        public async Task<User> GetAdUser(int adId)
+        {
+            var model = await base.GetDefaultQuery().AsQueryable()
+                .Select(r => new { AdId = r.Id, user = r.Customer.User })
+                .FirstOrDefaultAsync(r => r.AdId == adId);
+            return model.user;
+        }
+
         public async Task<AdStatusDto> GetStatus(int adId)
         {
-            var model = await base.GetDefaultQuery().AsQueryable().Include(a => a.AdPurchaseHistory).Select(a => new AdStatusDto
+            var model = await GetwithPurchaseHistory().Select(a => new AdStatusDto
             {
                 Id = a.Id,
                 Status = a.Status,

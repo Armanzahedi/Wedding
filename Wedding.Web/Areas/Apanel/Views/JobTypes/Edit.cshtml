@@ -12,7 +12,7 @@
     <div class="form-group">
         <label>آپلود تصویر</label>
         <div class="col-md-12">
-            <div class="dropzone" id="dropzone" data-input="Image" data-container="main-image-container" data-x="1" data-y="1"></div>
+            <div class="dropzone" data-input="Image" data-container="main-image-container" data-x="1" data-y="1"></div>
         </div>
     </div>
     <input type="hidden" asp-for="Image" />
@@ -66,5 +66,5 @@
 </form>
 <script>
     $.validator.unobtrusive.parse("#form");
-    new Dropzone("#dropzone")
+    new Dropzone(".dropzone");
 </script>

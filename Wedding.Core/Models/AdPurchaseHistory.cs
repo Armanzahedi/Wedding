@@ -13,9 +13,7 @@ namespace Wedding.Core.Models
         public DateTime PurchasedFrom { get; set; }
         public DateTime PurchasedTo { get; set; }
         public long Price { get; set; }
-        //public string Contract { get; set; }
-        //public string Receipt { get; set; }
-        //public bool OnlinePayment { get; set; }
-
+        public int InvoiceId { get; set; }
+        public Invoice Invoice { get; set; }
     }
 }

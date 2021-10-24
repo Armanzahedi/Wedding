@@ -418,3 +418,6 @@ body {
     padding: 5px 5px;
     font-size: 0.5rem;
 }
+figure.avatar > a > img, figure.avatar > img {
+    border-radius: 5px;
+}

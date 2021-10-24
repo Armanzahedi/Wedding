@@ -59,6 +59,13 @@ namespace Wedding.Web.Areas.Apanel.Controllers
             var model = await _paymentAccountRepo.GetByCustomerId(customerId);
             return PartialView(model);
         }
+        [Route("Apanel/Wallets/PendingPayments/{customerId}")]
+        public async Task<IActionResult> Factors(int customerId)
+        {
+            ViewBag.CustomerId = customerId;
+            var model = await _paymentAccountRepo.GetByCustomerId(customerId);
+            return PartialView(model);
+        }
         public IActionResult CreatePaymentAccount(int customerId)
         {
             var model = new PaymentAccount { CustomerId = customerId };
