@@ -27,9 +27,10 @@ namespace Wedding.Web.Areas.Apanel.Controllers
         private readonly IGeoDivisionRepository _geoDivisionRepo;
         private readonly IUserRepository _userRepo;
         private readonly IAdRepository _adRepo;
+        private readonly IInvoiceRepository _invoiceRepo;
         private readonly UserManager<User> _userManager;
 
-        public CustomersController(ICustomerRepository customerRepo, UserManager<User> userManager, IUserRepository userRepo, IJobTypeRepository jobTypeRepo, IGeoDivisionRepository geoDivisionRepo, IAdRepository adRepo)
+        public CustomersController(ICustomerRepository customerRepo, UserManager<User> userManager, IUserRepository userRepo, IJobTypeRepository jobTypeRepo, IGeoDivisionRepository geoDivisionRepo, IAdRepository adRepo, IInvoiceRepository invoiceRepo)
         {
             _customerRepo = customerRepo;
             _userManager = userManager;
@@ -37,6 +38,7 @@ namespace Wedding.Web.Areas.Apanel.Controllers
             _jobTypeRepo = jobTypeRepo;
             _geoDivisionRepo = geoDivisionRepo;
             _adRepo = adRepo;
+            _invoiceRepo = invoiceRepo;
         }
         public IActionResult Index(bool root = false)
         {

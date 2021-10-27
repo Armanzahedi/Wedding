@@ -139,7 +139,7 @@ namespace Wedding.Web.Areas.Apanel.Controllers
             model.AdStatus = ApprovalStatus.Approved;
             var result = await _adRepo.CreateAd(model);
 
-            if (referer == "customer")
+            if (referer == Referers.CustomerDetails)
                 return RedirectToAction("Details", "Customers", new { Id = model.CustomerId });
             else
                 return RedirectToAction(nameof(Index));
@@ -372,7 +372,7 @@ namespace Wedding.Web.Areas.Apanel.Controllers
         public async Task<JsonResult> Upgrade(UpgradeAdDto model)
         {
             if (!ModelState.IsValid)
-                return ModelState.ReturnJsonError();
+                return ModelState.JsonError();
 
             var from = DateTime.Parse(model.PurchasedFrom, new CultureInfo("fa-IR"));
             var to = DateTime.Parse(model.PurchasedTo, new CultureInfo("fa-IR"));

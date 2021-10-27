@@ -51,9 +51,9 @@
         </div>
     </div>
 </form>
+<script src="~/admin/vendors/dropzone/dropzone-config.js"></script>
 <script>
     $.validator.unobtrusive.parse("#form");
-    new Dropzone("#dropzone");
     $('#form').submit(function (e) {
         e.preventDefault();
         if ($('#form').valid()) {

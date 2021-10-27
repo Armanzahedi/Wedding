@@ -11,7 +11,7 @@
     <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.min.js"></script>
     <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.css" type="text/css">
 }
-@if (ViewBag.Referer == "customer")
+@if (ViewBag.Referer == Referers.CustomerDetails)
 {
     <input type="hidden" id="nav_active" value="customers">
     <input type="hidden" id="nav_item_active" value="customers">
@@ -25,7 +25,7 @@ else
     <div>
         <h3>@ViewData["Title"]</h3>
         <nav aria-label="breadcrumb">
-            @if (ViewBag.Referer == "customer")
+            @if (ViewBag.Referer == Referers.CustomerDetails)
             {
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a asp-area="apanel" asp-controller="Home" asp-action="Index">داشبورد</a></li>

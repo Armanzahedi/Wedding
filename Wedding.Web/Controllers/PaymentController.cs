@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Wedding.Core.Models;
 using Wedding.Core.Utility;
+using Wedding.Infrastructure.ExtensionMethods;
 using Wedding.Infrastructure.Repositories;
 using ZarinPal.Class;
 using Payment = ZarinPal.Class.Payment;
@@ -78,7 +79,7 @@ namespace Wedding.Web.Controllers
                 Email = customer.User.Email,
                 Amount = amount,
                 MerchantId = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-            }, ZarinPal.Class.Payment.Mode.sandbox);
+            }, Payment.Mode.sandbox);
             return Redirect($"https://sandbox.zarinpal.com/pg/StartPay/{result.Authority}");
         }
         /// <summary>
@@ -106,18 +107,13 @@ namespace Wedding.Web.Controllers
             if (referer != null)
             {
                 // check if referer already has parameters or not
-                if (referer.Contains("?"))
-                    return Redirect(referer+$"&paymentResult={result}");
-                else
-                    return Redirect(referer+$"?paymentResult={result}");
+                return Redirect(referer.AddPaymentResultToUrl(result));
             }
             return View(result);
         }
 
         public async Task<bool> ProccessPayment(Invoice invoice,Verification verification)
         {
-            invoice.ProcessedDate = DateTime.Now;
-
             var payment = new Core.Models.Payment
             {
                 InvoiceId = invoice.Id,
@@ -126,30 +122,18 @@ namespace Wedding.Web.Controllers
             };
 
             var validation = false;
+
             // success
             if (verification.Status == 100)
             {
                 validation = true;
-                invoice.IsPayed = true;
                 payment.PaymentStatus = PaymentStatus.Payed;
             }
             else
-            {
                 payment.PaymentStatus = PaymentStatus.Failed;
-            }
 
             await _paymentRepo.Add(payment);
-            await _invoiceRepo.Update(invoice);
-
-            // Proccess payment based on payment type
-            switch (invoice.InvoiceType)
-            {
-                case InvoiceType.WalletDeposit:
-                    await _walletRepo.ProccessDeposit(invoice.Id);
-                    break;
-                default:
-                    break;
-            }
+            await _invoiceRepo.ProccessInvoice(invoice.Id, payment.PaymentStatus);
             return validation;
         }
         /// <summary>

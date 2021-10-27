@@ -2,13 +2,10 @@
 @{
     ViewBag.Title = "کیف پول مشتری";
 }
-@if (ViewBag.Referer != null)
+@if (ViewBag.Referer != null && ViewBag.Referer == Referers.Customer)
 {
-    if (ViewBag.Referer == "customer")
-    {
-        <input type="hidden" id="nav_active" value="customers">
-        <input type="hidden" id="nav_item_active" value="customers">
-    }
+    <input type="hidden" id="nav_active" value="customers">
+    <input type="hidden" id="nav_item_active" value="customers">
 }
 else
 {
@@ -21,14 +18,11 @@ else
         <h3>@ViewData["Title"]</h3>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                @if (ViewBag.Referer != null)
+                @if (ViewBag.Referer != null && ViewBag.Referer == Referers.Customer)
                 {
-                    if (ViewBag.Referer == "customer")
-                    {
-                        <li class="breadcrumb-item"><a asp-area="apanel" asp-controller="Home" asp-action="Index">داشبورد</a></li>
-                        <li class="breadcrumb-item"><a asp-area="apanel" asp-controller="Customers" asp-action="Index">مشتریان</a></li>
-                        <li class="breadcrumb-item active" aria-current="page"><a href="javascript:void(0)">@ViewData["Title"]</a></li>
-                    }
+                    <li class="breadcrumb-item"><a asp-area="apanel" asp-controller="Home" asp-action="Index">داشبورد</a></li>
+                    <li class="breadcrumb-item"><a asp-area="apanel" asp-controller="Customers" asp-action="Index">مشتریان</a></li>
+                    <li class="breadcrumb-item active" aria-current="page"><a href="javascript:void(0)">@ViewData["Title"]</a></li>
                 }
                 else
                 {
@@ -53,9 +47,9 @@ else
                         <a onclick="openModal('/Apanel/Wallets/Withdrawal?walletId=@Model.Id')" class="btn btn-primary text-white ml-2">
                             <i class="fas fa-arrow-up ml-2"></i>برداشت
                         </a>
-@*                        <a onclick="openModal('/Apanel/Wallets/Deposit?walletId=@Model.Id')" class="btn btn-primary text-white">
+                        @*                        <a onclick="openModal('/Apanel/Wallets/Deposit?walletId=@Model.Id')" class="btn btn-primary text-white">
                             <i class="fas fa-arrow-down ml-2"></i>واریز
-                        </a>*@
+                            </a>*@
                     </div>
                 </div>
             </div>
@@ -79,54 +73,35 @@ else
     </div>
 </div>
 @section scripts {
-    <script>
-        function loadTransactionHistory() {
-            $("#tansactionSpinner").show();
-            $("#transaction-history").hide();
-            $.ajax({
-                url: "@Url.Action("TransactionHistory","Wallets", new { Id = Model.Id })",
-                success: function (result) {
-                    $("#tansactionSpinner").hide();
-                    $("#transaction-history").show();
-                    $("#transaction-history").html(result);
-                }
-            });
-        }
-        function loadPaymentAccounts() {
-            $("#paymentAccountsSpinner").show();
-            $("#payment-accounts").hide();
-            $.ajax({
-                url: "@Url.Action("PaymentAccounts","Wallets", new { Model.CustomerId })",
-                success: function (result) {
-                    $("#paymentAccountsSpinner").hide();
-                    $("#payment-accounts").show();
-                    $("#payment-accounts").html(result);
-                }
-            });
-        }
-        $(document).ready(function () {
-            loadTransactionHistory();
-            loadPaymentAccounts();
-            @if (ViewBag.PaymentResult != null)
-            {
-                if (ViewBag.PaymentResult == true)
-                {
-                    <text>
-                        toastr.success("پرداخت با موفقیت انجام شد", "تایید");
-                    </text>
-                }
-                else
-                {
-                    <text>toastr.error("پرداخت ناموفق", "خطا");</text>
-                }
+<script>
+    function loadTransactionHistory() {
+        $("#tansactionSpinner").show();
+        $("#transaction-history").hide();
+        $.ajax({
+            url: "@Url.Action("TransactionHistory","Wallets", new { Id = Model.Id })",
+            success: function (result) {
+                $("#tansactionSpinner").hide();
+                $("#transaction-history").show();
+                $("#transaction-history").html(result);
             }
-            //$.ajax({
-            //    url: "@Url.Action("AdsGrid","Customers", new { Id = ViewBag.CustomerId })",
-            //    success: function (result) {
-            //        $("#adsSpinner").hide();
-            //        $("#ads-grid").html(result);
-            //    }
-            //});
         });
-    </script>
+    }
+    function loadPaymentAccounts() {
+        $("#paymentAccountsSpinner").show();
+        $("#payment-accounts").hide();
+        $.ajax({
+            url: "@Url.Action("PaymentAccounts","Wallets", new { Model.CustomerId })",
+            success: function (result) {
+                $("#paymentAccountsSpinner").hide();
+                $("#payment-accounts").show();
+                $("#payment-accounts").html(result);
+            }
+        });
+    }
+    $(document).ready(function () {
+        loadTransactionHistory();
+        loadPaymentAccounts();
+    });
+</script>
+<partial name="_PaymentResultPartial" model="ViewBag.PaymentResult" />
 } 

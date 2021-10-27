@@ -3,7 +3,7 @@
     آگهی ها
     <span>
         <validate-permission asp-controller="Ads" asp-action="Create">
-            <a onclick="openModal('@Url.Action("Create", "Ads", new { customerId = ViewBag.CustomerId, referer = "customer" })')" class="btn btn-sm primary-font text-success" style="cursor: pointer">
+            <a onclick="openModal('@Url.Action("Create", "Ads", new { customerId = ViewBag.CustomerId, referer = Referers.Customer })')" class="btn btn-sm primary-font text-success" style="cursor: pointer">
                 <i class="ti-plus m-l-5"></i> ثبت آگهی جدید
             </a>
         </validate-permission>
@@ -64,7 +64,7 @@
                                         }
                                     </td>
                                     <td class="text-center">
-                                        <a class="btn btn-dark btn-sm text-white" href="@Url.Action("Details","Ads",new {Id = Model[i].Id, referer="customer"})">جزئیات</a>
+                                        <a class="btn btn-dark btn-sm text-white" href="@Url.Action("Details","Ads",new {Id = Model[i].Id, referer= Referers.CustomerDetails })">جزئیات</a>
                                     </td>
                                 </tr>
                             }

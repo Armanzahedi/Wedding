@@ -1,0 +1,119 @@
+﻿@using Wedding.Infrastructure.ExtensionMethods
+@model List<Wedding.Core.Models.Invoice>
+@{
+    ViewBag.Title = "فاکتور های مشتری";
+}
+<input type="hidden" id="nav_active" value="customers">
+<input type="hidden" id="nav_item_active" value="customers">
+<div class="page-header">
+    <div>
+        <h3>@ViewData["Title"]</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-area="apanel" asp-controller="Home" asp-action="Index">داشبورد</a></li>
+                <li class="breadcrumb-item"><a asp-area="apanel" asp-controller="Customers" asp-action="Index">مشتریان</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><a href="javascript:void(0)">@ViewData["Title"]</a></li>
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title d-flex justify-content-between align-items-center m-b-50">
+            فکتور های پرداخت نشده : @ViewBag.PendingInvoiceCount
+        </h5>
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">شماره فاکتور</th>
+                    <th scope="col">نوع</th>
+                    <th scope="col">مبلغ</th>
+                    <th scope="col">تاریخ ثبت</th>
+                    <th scope="col">وضعیت</th>
+                    <th scope="col">دستورات</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                @if (Model == null || Model.Any() == false)
+                {
+                    <span>هنوز هیچ داده ای ثبت نشده</span>
+                }
+                else
+                {
+                    for (int i = 0; i < Model.Count; i++)
+                    {
+                        var item = Model[i];
+                        <tr>
+                            <td>@(i+1)</td>
+                            <td>@item.Id</td>
+                            <td>
+                                @switch (item.InvoiceType)
+                                {
+                                    case InvoiceType.WalletDeposit:
+                                        <span>واریز وجه</span>
+                                        break;
+                                    case InvoiceType.AdPurchase:
+                                        <span>ارتقا آگهی</span>
+                                        break;
+                                    case InvoiceType.Reservation:
+                                        <span>رزرو</span>
+                                        break;
+                                    case InvoiceType.BannerPurchase:
+                                        <span>خرید بنر</span>
+                                        break;
+                                    default:
+                                        <span>-</span>
+                                        break;
+                                }
+                            </td>
+                            <td>@item.Amount.ToString("##,###") تومان</td>
+                            <td>@item.CreateDate.ToPersianDate()</td>
+                            <td class="@(item.IsPayed ? "text-success" : "text-danger")">
+                                @if (item.IsPayed)
+                                {
+                                    <text>پرداخت شده</text>
+                                }
+                                else
+                                {
+                                    <text>پرداخت نشده</text>
+                                }
+                            </td>
+                            <td>
+                                <a onclick="openModal('/Apanel/Customers/InvoiceDetails/@item.Id')" class="btn btn-sm btn-dark text-white">جزییات</a>
+                                @if (item.IsPayed == false)
+                                {
+                                    <a asp-area="" asp-controller="Payment" asp-action="PaymentRequest" asp-route-id="@item.Id" asp-route-referer="@Context.Request.Path" class="btn btn-sm btn-success text-white">پرداخت</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                </tbody>    
+            </table>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            @if (ViewBag.PaymentResult != null)
+            {
+                if (ViewBag.PaymentResult == true)
+                {
+                    <text>
+                        toastr.success("پرداخت با موفقیت انجام شد", "تایید");
+                    </text>
+                }
+                else
+                {
+                    <text>toastr.error("پرداخت ناموفق", "خطا");</text>
+                }
+            }
+        });
+    </script>
+} 

@@ -1,0 +1,181 @@
+﻿@using Wedding.Infrastructure.ExtensionMethods
+@model PayInvoiceDto
+
+<input type="hidden" id="title" value="پرداخت فاکتور" />
+
+<dl class="row" style="padding-top:10px">
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Id)
+    </dt>
+    <dd class="col-sm-8">
+        @Html.DisplayFor(model => model.Id)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Customer)
+    </dt>
+    <dd class="col-sm-8">
+        @Html.DisplayFor(model => model.Customer)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.InvoiceType)
+    </dt>
+    <dd class="col-sm-8">
+        <partial name="_InvoiceTypePartial" model="Model.InvoiceType" />
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.CreateDate)
+    </dt>
+    <dd class="col-sm-8">
+        @Model.CreateDate.ToPersianDate()
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Amount)
+    </dt>
+    <dd class="col-sm-8">
+        @Model.Amount.ToString("##,###") تومان
+    </dd>
+</dl>
+<form asp-action="PayInvoice" method="post" id="form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="WalletBalance" type="hidden" />
+    <input asp-for="Amount" type="hidden" />
+    <input asp-for="PayableAmount" type="hidden" />
+    <input asp-for="Referer" type="hidden" />
+    <input asp-for="CreateDate" type="hidden" />
+    <div class="form-group">
+        <div class="custom-control custom-switch">
+            <input type="checkbox" class="custom-control-input" asp-for="OnlinePayment" checked="@Model.OnlinePayment">
+            <label class="custom-control-label" asp-for="OnlinePayment" ></label>
+        </div>
+    </div>
+    <div id="receipt-payment-section">
+        <div class="form-group" >
+            <label>آپلود رسید خرید</label>
+            <div class="col-md-12">
+                <div class="dropzone" data-input="Receipt" data-container="receipt-container" data-x="1" data-y="1"></div>
+            </div>
+        </div>
+        <input type="hidden" asp-for="Receipt" />
+        <span asp-validation-for="Receipt" class="text-danger"></span>
+        <div class="form-group img-container" id="main-image-container" style="display:@(string.IsNullOrEmpty(Model.Receipt)?"none":"block")">
+            <label asp-for="Receipt"></label>
+            <div class="col-md-12">
+                <img src="@(string.IsNullOrEmpty(Model.Receipt)?null:"/UploadedFiles/Images/"+ Model.Receipt)" class="main-image rounded" />
+                <button type="button" class="btn btn-sm btn-danger remove-image" data-container="receipt-container" data-input="Receipt">
+                    <i class='ti-trash text-white'></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="online-payment-section">
+        <div class="form-group">
+            <div class="custom-control custom-switch">
+                <input type="checkbox" class="custom-control-input" asp-for="UseWallet" disabled="@(Model.WalletBalance <= 0)" checked="@Model.UseWallet">
+                <label class="custom-control-label" asp-for="UseWallet" ></label>
+                <small id="balanceHelp" class="form-text text-muted">
+                    موجودی کیف پول: @(Model.WalletBalance != 0 ? Model.WalletBalance.ToString("##,###") : "0") تومان
+                </small>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="d-flex align-items-center justify-content-start mb-2 mr-3">
+            <div>
+                <span>مبلغ پرداختی نهایی:</span>
+                <span id="show-payable-amount">@Model.Amount.ToString("##,###") تومان</span>
+            </div>
+            <span asp-validation-for="PayableAmount" class="text-danger"></span>
+        </div>
+        <div style="margin: auto; width: 95%">
+            <button id="btn-submit" class="btn btn-success btn-block" type="submit">
+                <span id="btn-loading" style="display: none" class="spinner-border spinner-border-sm m-l-5" role="status" aria-hidden="true"></span>
+                پرداخت
+            </button>
+            @*<input id="submit-btn" type="submit" value="پرداخت" class="btn btn-success btn-block"/>*@
+        </div>
+    </div>
+</form>
+<script src="~/admin/vendors/dropzone/dropzone-config.js"></script>
+<script>
+    $.validator.unobtrusive.parse("#form");
+    function SetPayableAmount() {
+
+        var amount = parseInt($("#Amount").val());
+
+        var payableAmount = 0;
+
+        var useWallet = $("#UseWallet").is(':checked');
+        var onlinePayment = $("#OnlinePayment").is(':checked');
+        var walletBalance = parseInt($("#WalletBalance").val());
+
+        if (onlinePayment === true) {
+            payableAmount = amount;
+            if (useWallet === true && walletBalance > 0) {
+
+                if (walletBalance >= amount) {
+                    payableAmount = 0;
+                } else {
+                    payableAmount = amount - walletBalance;
+                }
+            }
+        }
+        $("#PayableAmount").val(payableAmount.toString());
+        $("#show-payable-amount").text(toPrice(payableAmount) + " تومان ");
+    }
+    $( document ).ready(function() {
+        SetPayableAmount();
+
+        if ($("#OnlinePayment").val() === "true") {
+            $("#online-payment-section").show();
+            $("#receipt-payment-section").hide();
+        } else {
+            $("#online-payment-section").hide();
+            $("#receipt-payment-section").show();
+        }
+    });
+    $('#OnlinePayment').change(function() {
+        if(this.checked) {
+            $("#OnlinePayment").val(true);
+            $("#online-payment-section").show();
+            $("#receipt-payment-section").hide();
+        } else {
+            $("#OnlinePayment").val(false);
+            $("#online-payment-section").hide();
+            $("#receipt-payment-section").show();
+        }
+        SetPayableAmount();
+    });
+    $('#UseWallet').change(function() {
+        if(this.checked) {
+            $("#UseWallet").val(true);
+        } else {
+            $("#UseWallet").val(false);
+        }
+        SetPayableAmount();
+    });
+
+</script>
+<script>
+    $('#form').submit(function (e) {
+        e.preventDefault();
+        if ($('#form').valid()) {
+            $.ajax({
+                type: 'POST',
+                url: "/Apanel/Invoices/PayInvoice",
+                data: $(this).serialize(),
+                dataType: 'json',   
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',  
+            }).done(function (response) {
+                if (response.status === "Success") {
+                    //$("#myModal").modal('hide');
+                    $("#btn-submit").prop("disabled",true);
+                    $("#btn-loading").show();
+                    location.href = response.redirectUrl;
+                } else {
+                    toastr.error(response.message,"خطا");
+                }
+            });
+        }
+    });
+</script>

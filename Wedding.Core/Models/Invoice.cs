@@ -7,6 +7,7 @@ namespace Wedding.Core.Models
 {
     public class Invoice : BaseEntity
     {
+        public string Title { get; set; }
         public int CustomerId { get; set; }
         public Customer Customer { get; set; }
         public InvoiceType InvoiceType { get; set; }

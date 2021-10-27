@@ -35,7 +35,7 @@ namespace Wedding.Infrastructure.ExtensionMethods
                 {
                     persianStr = persianStr.Replace(LettersDictionary[item], item);
                 }
-                catch (Exception )
+                catch (Exception)
                 {
                     return persianStr;
                 }
@@ -94,10 +94,10 @@ namespace Wedding.Infrastructure.ExtensionMethods
             DateTime thisDate = DateTime.Now;
 
             // Display the current date using the Gregorian and Persian calendars.
-            var persianDt = string.Format("{0}/{1}/{2} {3}:{4}:{5}\n",
+            var persianDt = string.Format("{3}:{4}:{5} {0}/{1}/{2}\n",
                 pc.GetYear(dt),
-                pc.GetMonth(dt),
-                pc.GetDayOfMonth(dt),
+                pc.GetMonth(dt) < 10 ? $"0{pc.GetMonth(dt)}" : pc.GetMonth(dt).ToString(),
+                pc.GetDayOfMonth(dt) < 10 ? $"0{pc.GetDayOfMonth(dt)}" : pc.GetDayOfMonth(dt).ToString(),
                 pc.GetHour(dt),
                 pc.GetMinute(dt),
                 pc.GetSecond(dt));
@@ -111,8 +111,8 @@ namespace Wedding.Infrastructure.ExtensionMethods
             // Display the current date using the Gregorian and Persian calendars.
             var persianDt = string.Format("{0}/{1}/{2}\n",
                 pc.GetYear(dt),
-                pc.GetMonth(dt) < 10 ? $"0{pc.GetMonth(dt)}": pc.GetMonth(dt).ToString(),
-                pc.GetDayOfMonth(dt) < 10 ? $"0{pc.GetDayOfMonth(dt)}": pc.GetDayOfMonth(dt).ToString());
+                pc.GetMonth(dt) < 10 ? $"0{pc.GetMonth(dt)}" : pc.GetMonth(dt).ToString(),
+                pc.GetDayOfMonth(dt) < 10 ? $"0{pc.GetDayOfMonth(dt)}" : pc.GetDayOfMonth(dt).ToString());
             return persianDt;
         }
     }

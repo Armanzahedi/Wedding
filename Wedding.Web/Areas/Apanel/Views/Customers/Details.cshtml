@@ -20,7 +20,7 @@
         <div class="card">
             <div class="card-body">
                 @await Html.PartialAsync("_SpinnerPartial" ,"customerSpinner")
-                <div id="customer-details"></div>
+                <div id="customer-info"></div>
             </div>
         </div>
         <div class="card">
@@ -38,7 +38,7 @@
                 url: "@Url.Action("CustomerInfo","Customers", new { Id = ViewBag.CustomerId })",
                 success: function (result) {
                     $("#customerSpinner").hide();
-                    $("#customer-details").html(result);
+                    $("#customer-info").html(result);
                 }
             });
         }

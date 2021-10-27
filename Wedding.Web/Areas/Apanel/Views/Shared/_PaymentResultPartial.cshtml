@@ -1,0 +1,18 @@
+﻿@model bool?
+<script>
+    $(document).ready(function () {
+        @if (Model != null)
+    {
+        @if (Model == true)
+        {
+            <text>
+             toastr.success("پرداخت با موفقیت انجام شد", "تایید");
+            </text>
+        }
+        else
+        {
+            <text>toastr.error("پرداخت ناموفق", "خطا");</text>
+        }
+    }
+    });
+</script>

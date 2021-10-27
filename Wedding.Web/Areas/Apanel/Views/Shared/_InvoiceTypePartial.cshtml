@@ -1,0 +1,19 @@
+﻿@model InvoiceType
+@switch (Model)
+{
+    case InvoiceType.WalletDeposit:
+        <span>واریز وجه</span>
+        break;
+    case InvoiceType.AdPurchase:
+        <span>ارتقا آگهی</span>
+        break;
+    case InvoiceType.Reservation:
+        <span>رزرو</span>
+        break;
+    case InvoiceType.BannerPurchase:
+        <span>خرید بنر</span>
+        break;
+    default:
+        <span>-</span>
+        break;
+}

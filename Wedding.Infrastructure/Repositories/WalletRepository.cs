@@ -17,8 +17,8 @@ namespace Wedding.Infrastructure.Repositories
         Task<Wallet> GetByCustomerId(int customerId);
         Task<long> GetBalance(int walletId);
         Task<List<WalletTransaction>> GetTransactionHistory(int walletId);
-        Task<Invoice> SubmitDeposit(DepositDto model);
-        Task<WalletTransaction> ProccessDeposit(int invoiceId);
+        //Task<Invoice> SubmitDeposit(DepositDto model);
+        //Task<WalletTransaction> ProccessDeposit(int invoiceId);
     }
     public class WalletRepository : BaseRepository<Wallet>, IWalletRepository
     {
@@ -27,12 +27,12 @@ namespace Wedding.Infrastructure.Repositories
         private readonly IWalletTransactionRepository _transactionRepo;
         private readonly IInvoiceRepository _invoiceRepo;
 
-        public WalletRepository(MyDbContext context, ILogRepository logger, IWalletTransactionRepository transactionRepo, IInvoiceRepository invoiceRepo) : base(context, logger)
+        public WalletRepository(MyDbContext context, ILogRepository logger, IWalletTransactionRepository transactionRepo)
+            : base(context, logger)
         {
             _context = context;
             _logger = logger;
             _transactionRepo = transactionRepo;
-            _invoiceRepo = invoiceRepo;
         }
 
         public async Task<Wallet> GetByCustomerId(int customerId)
@@ -53,52 +53,52 @@ namespace Wedding.Infrastructure.Repositories
             return await _transactionRepo.GetDefaultQuery().AsQueryable().Where(w=>w.WalletId == walletId).OrderByDescending(t=>t.CreateDate).ToListAsync();
         }
 
-        public async Task<Invoice> SubmitDeposit(DepositDto model)
-        {
-            var wallet = await base.GetById(model.WalletId);
-            var invoice = new Invoice()
-            {
-                CustomerId = wallet.CustomerId,
-                Amount = model.Amount,
-                InvoiceType = InvoiceType.WalletDeposit,
-                CreateDate = DateTime.Now
-            };
-            await _invoiceRepo.Add(invoice);
-            var transaction = new WalletTransaction
-            {
-                WalletId = model.WalletId,
-                TransactionType = WalletTransactionType.Deposit,
-                TransactionStatus = WalletTransctionStatus.Pending,
-                Amount = model.Amount,
-                CreateDate = DateTime.Now,
-                InvoiceId = invoice.Id
-            };
-            await _transactionRepo.Add(transaction);
-            return invoice;
-        }
+        //public async Task<Invoice> SubmitDeposit(DepositDto model)
+        //{
+        //    var wallet = await base.GetById(model.WalletId);
+        //    var invoice = new Invoice()
+        //    {
+        //        CustomerId = wallet.CustomerId,
+        //        Amount = model.Amount,
+        //        InvoiceType = InvoiceType.WalletDeposit,
+        //        CreateDate = DateTime.Now
+        //    };
+        //    await _invoiceRepo.Add(invoice);
+        //    var transaction = new WalletTransaction
+        //    {
+        //        WalletId = model.WalletId,
+        //        TransactionType = WalletTransactionType.Deposit,
+        //        TransactionStatus = WalletTransctionStatus.Pending,
+        //        Amount = model.Amount,
+        //        CreateDate = DateTime.Now,
+        //        InvoiceId = invoice.Id
+        //    };
+        //    await _transactionRepo.Add(transaction);
+        //    return invoice;
+        //}
 
-        public async Task<WalletTransaction> ProccessDeposit(int invoiceId)
-        {
-            var invoice = await _invoiceRepo.GetById(invoiceId);
-            var transaction = await _transactionRepo.GetByInvoiceId(invoiceId);
+        //public async Task<WalletTransaction> ProccessDeposit(int invoiceId)
+        //{
+        //    var invoice = await _invoiceRepo.GetById(invoiceId);
+        //    var transaction = await _transactionRepo.GetByInvoiceId(invoiceId);
 
-            if (invoice.IsPayed)
-            {
-                transaction.TransactionStatus = WalletTransctionStatus.Processed;
-                await _transactionRepo.Update(transaction);
+        //    if (invoice.IsPayed)
+        //    {
+        //        transaction.TransactionStatus = WalletTransctionStatus.Processed;
+        //        await _transactionRepo.Update(transaction);
 
-                var wallet = await base.GetById(transaction.WalletId);
-                wallet.Balance += transaction.Amount;
-                await base.Update(wallet);
-            }
-            else
-            {
-                transaction.TransactionStatus = WalletTransctionStatus.Failed;
-                transaction.IsDeleted = true;
-                await _transactionRepo.Update(transaction);
-            }
+        //        var wallet = await base.GetById(transaction.WalletId);
+        //        wallet.Balance += transaction.Amount;
+        //        await base.Update(wallet);
+        //    }
+        //    else
+        //    {
+        //        transaction.TransactionStatus = WalletTransctionStatus.Failed;
+        //        transaction.IsDeleted = true;
+        //        await _transactionRepo.Update(transaction);
+        //    }
 
-            return transaction;
-        }
+        //    return transaction;
+        //}
     }
 }

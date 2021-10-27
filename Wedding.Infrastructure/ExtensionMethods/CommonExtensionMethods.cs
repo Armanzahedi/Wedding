@@ -21,16 +21,24 @@ namespace Wedding.Infrastructure.ExtensionMethods
             }
         }
 
-        public static JsonResult ReturnJsonError(this ModelStateDictionary modelState)
+        public static JsonResult JsonError(this ModelStateDictionary modelState)
         {
             var allErrors = modelState.Values.SelectMany(v => v.Errors).ToList();
 
             var message = "";
             foreach (var error in allErrors)
             {
-                message += $"<br/>  {error.ErrorMessage}";
+                message += $"{error.ErrorMessage}  <br/>";
             }
             return new JsonResult(new { Status = "Invalid", Message = message });
+        }
+
+        public static string AddPaymentResultToUrl(this string url,bool result)
+        {
+            if (url.Contains("?"))
+                return url + $"&paymentResult={result}";
+            else
+                return url + $"?paymentResult={result}";
         }
     }
 }

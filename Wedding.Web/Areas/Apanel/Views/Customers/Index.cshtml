@@ -85,14 +85,21 @@
                                 if (await PermissionHelper.UserHasPermission("Customers", "Details"))
                                 {
                                     <text>
-                                        var element = `<a class='btn btn-warning text-white btn-sm ml-2' href='/apanel/Wallets/Customer/${row.Id}?referer=customer'>کیف پول</a>`;
+                                        var element = `<a class='btn btn-warning text-white btn-sm ml-2' href='/apanel/Wallets/Customer/${row.Id}?referer=@(Referers.Customer)'>کیف پول</a>`;
+                                        content += element;
+                                    </text>
+                                }
+                                if (await PermissionHelper.UserHasPermission("Customers", "Details"))
+                                {
+                                    <text>
+                                        var element = `<a class='btn btn-success text-white btn-sm ml-2' href='/apanel/Invoices/CustomerInvoices/${row.Id}?referer=@(Referers.Customer)'>فاکتور ها</a>`;
                                         content += element;
                                     </text>
                                 }
                              }
                             return content;
                         },
-                        width:"180px",
+                        width:"255px",
                         orderable: false
                     },
 
