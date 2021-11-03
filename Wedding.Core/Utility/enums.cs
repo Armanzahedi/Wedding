@@ -96,4 +96,20 @@ namespace Wedding.Core.Utility
         Approved = 2,
         Rejected = 3
     }
+
+    public enum BannerTypes
+    {
+        Deluxe = 1,
+        Gold = 2,
+        Silver = 3,
+        Vip = 4,
+        Slider = 5,
+        Wall = 6
+    }
+
+    public enum BannerStatus
+    {
+        Active = 1,
+        Inactive = 2
+    }
 }

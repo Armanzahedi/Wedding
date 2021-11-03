@@ -9,9 +9,9 @@ namespace Wedding.Infrastructure.Helpers
 {
     public static class SmsHelper
     {
-        private static string KavenegarApiKey = "4C3162387265436C394B65336143626572424D746A7367354867734D6E776E493268764F65336D496D71553D";
-        private static string SmsIrSecretKey = "MySecureSmsCode@2563";
-        private static string SmsIrApiKey = "d307040a9ee89909b3830849";
+        private static string KavenegarApiKey = "";
+        private static string SmsIrSecretKey = "";
+        private static string SmsIrApiKey = "";
 
         public static async Task<SendResult> SendSms(string receptor,string message, string sender = null)
         {

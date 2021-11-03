@@ -95,6 +95,12 @@ namespace Wedding.Web.Areas.Apanel.Controllers
                     .ToLower().Trim().Contains(model.Customer.Trim().ToLower())).ToList();
             }
 
+            switch (model.Order)
+            {
+                default:
+                    query = query.OrderBy(a => a.RegisterDate);
+                    break;
+            }
             var parser = new Parser<AdGridViewModel>(Request.Form, query.AsQueryable());
             return JsonConvert.SerializeObject(parser.Parse());
         }
